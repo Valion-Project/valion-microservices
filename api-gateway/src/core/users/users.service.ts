@@ -10,7 +10,7 @@ export class UsersService {
   ) {}
 
   findById(id: number) {
-    return this.usersClient.send('find_by_id', { id }).pipe(
+    return this.usersClient.send('find_user_by_id', { id }).pipe(
       catchError(err => {
         if (err.statusCode === 404) {
           throw new NotFoundException({
@@ -25,7 +25,7 @@ export class UsersService {
   }
 
   findByIdToValidateToken(id: number) {
-    return this.usersClient.send('find_by_id_to_validate_token', { id }).pipe(
+    return this.usersClient.send('find_user_by_id_to_validate_token', { id }).pipe(
       catchError(err => {
         if (err.statusCode === 404) {
           throw new NotFoundException(err.message);

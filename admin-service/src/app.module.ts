@@ -4,6 +4,10 @@ import { AppService } from './app.service';
 import {TypeOrmModule} from "@nestjs/typeorm";
 import {ConfigModule} from "@nestjs/config";
 import { CompaniesModule } from './core/companies/companies.module';
+import { CompanyProgramsModule } from './core/company-programs/company-programs.module';
+import { BranchesModule } from './core/branches/branches.module';
+import { LoyaltyProgramsModule } from './core/loyalty-programs/loyalty-programs.module';
+import {LevelsModule} from "./core/levels/levels.module";
 
 @Module({
   imports: [
@@ -21,6 +25,10 @@ import { CompaniesModule } from './core/companies/companies.module';
       synchronize: true,
     }),
     CompaniesModule,
+    LevelsModule,
+    CompanyProgramsModule,
+    BranchesModule,
+    LoyaltyProgramsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

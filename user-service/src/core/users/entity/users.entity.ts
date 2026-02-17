@@ -12,7 +12,13 @@ export class User {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ unique: true })
+    @Column()
+    name: string;
+
+    @Column()
+    lastName: string;
+
+    @Column()
     email: string;
 
     @Column()
@@ -20,6 +26,9 @@ export class User {
 
     @Column()
     tokenVersion: number;
+
+    @Column()
+    isSuperAdmin: boolean;
 
     @CreateDateColumn()
     createdAt: Date;

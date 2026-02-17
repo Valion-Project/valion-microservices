@@ -4,6 +4,10 @@ import { AppService } from './app.service';
 import {TypeOrmModule} from "@nestjs/typeorm";
 import {ConfigModule} from "@nestjs/config";
 import { CardsModule } from './core/cards/cards.module';
+import { ClientsModule } from './core/clients/clients.module';
+import { RewardsModule } from './core/rewards/rewards.module';
+import { EventTypesModule } from './core/event-types/event-types.module';
+import { EventsModule } from './core/events/events.module';
 
 @Module({
   imports: [
@@ -21,6 +25,10 @@ import { CardsModule } from './core/cards/cards.module';
       synchronize: true,
     }),
     CardsModule,
+    ClientsModule,
+    RewardsModule,
+    EventTypesModule,
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
