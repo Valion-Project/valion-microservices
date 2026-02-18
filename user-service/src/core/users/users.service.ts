@@ -1,15 +1,18 @@
-import {BadRequestException, Injectable, NotFoundException} from '@nestjs/common';
+import {BadRequestException, Injectable, NotFoundException, UnauthorizedException} from '@nestjs/common';
 import {InjectRepository} from "@nestjs/typeorm";
 import {User} from "./entity/users.entity";
 import {Repository} from "typeorm";
 import {CreateUserDto} from "./dto/create-user.dto";
 import * as bcrypt from 'bcrypt';
+import {LoginUserDto} from "./dto/login-user.dto";
+import {JwtService} from "@nestjs/jwt";
 
 @Injectable()
 export class UsersService {
 
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
+    private jwtService: JwtService,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -37,6 +40,38 @@ export class UsersService {
     const savedUser = await this.userRepository.save(newUser);
 
     return { user: savedUser };
+  }
+
+  async login(loginUserDto: LoginUserDto) {
+    const user = await this.userRepository.findOne({
+      where: { email: loginUserDto.email }
+    });
+    if (!user) {
+      throw new UnauthorizedException({
+        message: ['Correo o contraseña inválidos.'],
+        error: "Unauthorized",
+        statusCode: 401
+      });
+    }
+
+    const passwordValid = await bcrypt.compare(loginUserDto.password, user.password);
+    if (!passwordValid) {
+      throw new UnauthorizedException({
+        message: ['Correo o contraseña inválidos.'],
+        error: "Unauthorized",
+        statusCode: 401
+      });
+    }
+
+    const payload = {
+      sub: user.id,
+      tokenVersion: user.tokenVersion
+    };
+    const token = this.jwtService.sign(payload);
+
+    return {
+      token: token
+    };
   }
 
   async findById(id: number) {

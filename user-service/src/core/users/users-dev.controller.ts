@@ -13,6 +13,7 @@ import {UsersService} from "./users.service";
 import {JwtAuthGuard} from "../../security/jwt-auth.guard";
 import {ApiBearerAuth} from "@nestjs/swagger";
 import {CreateUserDto} from "./dto/create-user.dto";
+import {LoginUserDto} from "./dto/login-user.dto";
 
 @Controller('users-dev')
 export class UsersDevController {
@@ -23,6 +24,12 @@ export class UsersDevController {
   @UsePipes(new ValidationPipe({ whitelist: true }))
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
+  }
+
+  @Post('login')
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  login(@Body() loginUserDto: LoginUserDto) {
+    return this.usersService.login(loginUserDto);
   }
 
   @Get('id/:id')

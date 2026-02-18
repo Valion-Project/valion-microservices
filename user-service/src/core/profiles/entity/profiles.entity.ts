@@ -7,6 +7,10 @@ import {
     UpdateDateColumn
 } from 'typeorm';
 
+export enum ProfileDomain {
+    OPERATOR = 'OPERATOR', ADMIN = 'ADMIN'
+}
+
 @Entity()
 export class Profile {
     @PrimaryGeneratedColumn()
@@ -17,6 +21,9 @@ export class Profile {
 
     @Column()
     companyId: number;
+
+    @Column({ type: 'enum', enum: ProfileDomain, nullable: true })
+    domain: ProfileDomain;
 
     @CreateDateColumn()
     createdAt: Date;

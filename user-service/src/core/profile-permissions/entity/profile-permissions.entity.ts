@@ -14,10 +14,10 @@ export class ProfilePermission {
     id: number;
 
     @ManyToOne(() => Profile)
-    profileId: Profile;
+    profile: Profile;
 
     @ManyToOne(() => Permission)
-    permissionId: Permission;
+    permission: Permission;
 
     @CreateDateColumn()
     createdAt: Date;

@@ -8,8 +8,8 @@ export class CompaniesController {
 
   constructor(private companiesService: CompaniesService) {}
 
-  @MessagePattern('create_permission')
-  async createPermission(data: CreateCompanyDto) {
+  @MessagePattern('create_company')
+  async createCompany(data: CreateCompanyDto) {
     try {
       return await this.companiesService.create(data);
     } catch (err) {

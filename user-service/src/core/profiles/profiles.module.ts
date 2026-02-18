@@ -19,7 +19,7 @@ import {ProfilesDevController} from "./profiles-dev.controller";
         transport: Transport.TCP,
         options: {
           host: process.env.ADMIN_SERVICE_HOST ?? 'localhost',
-          port: Number(process.env.PORT_ADMIN) ?? 3002,
+          port: Number(process.env.PORT_ADMIN) ?? 3022,
         },
       },
     ]),

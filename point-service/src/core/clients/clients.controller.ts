@@ -1,4 +1,28 @@
 import { Controller } from '@nestjs/common';
+import {ClientsService} from "./clients.service";
+import {MessagePattern, RpcException} from "@nestjs/microservices";
+import {CreateClientDto} from "./dto/create-client.dto";
 
 @Controller('clients')
-export class ClientsController {}
+export class ClientsController {
+
+  constructor(private clientsService: ClientsService) {}
+
+  @MessagePattern('create_client')
+  async createClient(data: CreateClientDto) {
+    try {
+      return await this.clientsService.create(data);
+    } catch (err) {
+      throw new RpcException(err.response);
+    }
+  }
+
+  @MessagePattern('find_client_by_user_id')
+  async findByUserId(data: { userId: number }) {
+    try {
+      return await this.clientsService.findByUserId(data.userId);
+    } catch (err) {
+      throw new RpcException(err.response);
+    }
+  }
+}

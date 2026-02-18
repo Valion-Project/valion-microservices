@@ -21,10 +21,10 @@ export class SecurityLog {
     used: boolean;
 
     @ManyToOne(() => User)
-    userId: User;
+    user: User;
 
     @ManyToOne(() => SecurityEvent)
-    securityEventId: SecurityEvent;
+    securityEvent: SecurityEvent;
 
     @CreateDateColumn()
     createdAt: Date;

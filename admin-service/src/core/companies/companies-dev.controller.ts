@@ -23,7 +23,6 @@ export class CompaniesDevController {
     return this.companiesService.create(createCompanyDto);
   }
 
-
   @Get('id/:id')
   getById(@Param('id', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) id: number) {
     return this.companiesService.findById(id);

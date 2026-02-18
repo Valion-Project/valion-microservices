@@ -8,7 +8,7 @@ import {CreateCompanyDto} from "./dto/create-company.dto";
 export class CompaniesService {
 
   constructor(
-    @InjectRepository(Company) private readonly companyRepository: Repository<Company>,
+    @InjectRepository(Company) private companyRepository: Repository<Company>,
   ) {}
 
   async create(createCompanyDto: CreateCompanyDto) {
@@ -37,7 +37,7 @@ export class CompaniesService {
     });
     if (!company) {
       throw new NotFoundException({
-        message: ['Empresa no encontrado.'],
+        message: ['Empresa no encontrada.'],
         error: 'Not Found',
         statusCode: 404
       });

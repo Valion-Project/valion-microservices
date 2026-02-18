@@ -9,7 +9,7 @@ export class ProfilesController {
   constructor(private profilesService: ProfilesService) {}
 
   @MessagePattern('create_profile')
-  async createPermission(data: CreateProfileDto) {
+  async createProfile(data: CreateProfileDto) {
     try {
       return await this.profilesService.create(data);
     } catch (err) {
