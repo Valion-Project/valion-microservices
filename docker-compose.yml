@@ -1,0 +1,39 @@
+services:
+  user-service:
+    build: ./user-service
+    container_name: user-service
+    ports:
+      - "3021:3021"
+      - "3024:3024"
+    networks:
+      - valion-network
+
+  admin-service:
+    build: ./admin-service
+    container_name: admin-service
+    ports:
+      - "3022:3022"
+      - "3025:3025"
+    networks:
+      - valion-network
+
+  point-service:
+    build: ./point-service
+    container_name: point-service
+    ports:
+      - "3023:3023"
+      - "3026:3026"
+    networks:
+      - valion-network
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "3020:3020"
+    networks:
+      - valion-network
+
+networks:
+  valion-network:
+    driver: bridge

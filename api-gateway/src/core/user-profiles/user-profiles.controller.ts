@@ -1,29 +1,12 @@
-import {
-  BadRequestException,
-  Body,
-  Controller,
-  Get,
-  Param,
-  ParseIntPipe,
-  Post, Request, UseGuards,
-  UsePipes,
-  ValidationPipe
-} from '@nestjs/common';
-import {UserProfilesService} from "./user-profiles.service";
-import {CreateUserProfileDto} from "./dto/create-user-profile.dto";
+import {BadRequestException, Controller, Get, Param, ParseIntPipe, Request, UseGuards} from '@nestjs/common';
 import {JwtAuthGuard} from "../../security/jwt-auth.guard";
 import {ApiBearerAuth} from "@nestjs/swagger";
+import {UserProfilesService} from "./user-profiles.service";
 
-@Controller('user-profiles-dev')
-export class UserProfilesDevController {
+@Controller('user-profiles')
+export class UserProfilesController {
 
   constructor(private userProfilesService: UserProfilesService) {}
-
-  @Post()
-  @UsePipes(new ValidationPipe({ whitelist: true }))
-  create(@Body() createUserProfileDto: CreateUserProfileDto) {
-    return this.userProfilesService.create(createUserProfileDto);
-  }
 
   @Get('context-options/:userId')
   getContextOptionsByUserId(@Param('userId', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) userId: number) {

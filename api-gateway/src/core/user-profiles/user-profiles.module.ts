@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
-import { UsersController } from './users.controller';
-import { UsersService } from './users.service';
+import { UserProfilesController } from './user-profiles.controller';
+import { UserProfilesService } from './user-profiles.service';
 import {ConfigModule} from "@nestjs/config";
 import {ClientsModule, Transport} from "@nestjs/microservices";
-import {JwtStrategy} from "../../security/jwt-strategy";
 
 @Module({
   imports: [
@@ -21,7 +20,7 @@ import {JwtStrategy} from "../../security/jwt-strategy";
       },
     ]),
   ],
-  controllers: [UsersController],
-  providers: [UsersService, JwtStrategy]
+  controllers: [UserProfilesController],
+  providers: [UserProfilesService]
 })
-export class UsersModule {}
+export class UserProfilesModule {}

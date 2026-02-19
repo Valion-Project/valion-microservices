@@ -1,0 +1,26 @@
+import {Inject, Injectable, InternalServerErrorException, NotFoundException} from '@nestjs/common';
+import {ClientProxy} from "@nestjs/microservices";
+import {catchError} from "rxjs";
+
+@Injectable()
+export class UserProfilesService {
+
+  constructor(
+    @Inject('USER_SERVICE') private readonly usersClient: ClientProxy
+  ) {}
+
+  findContextOptions(userId: number) {
+    return this.usersClient.send('find_context_options', { userId }).pipe(
+      catchError(err => {
+        if (err.statusCode === 404) {
+          throw new NotFoundException({
+            message: err.message,
+            error: err.error,
+            statusCode: err.statusCode
+          });
+        }
+        throw new InternalServerErrorException();
+      })
+    );
+  }
+}

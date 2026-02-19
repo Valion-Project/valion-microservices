@@ -33,14 +33,14 @@ export class UsersDevController {
   }
 
   @Get('id/:id')
-  getById(@Param('id', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) id: number) {
+  getUserById(@Param('id', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) id: number) {
     return this.usersService.findById(id);
   }
 
   @Get('my')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('jwt-auth')
-  getProfile(@Request() req: any) {
+  getMyUser(@Request() req: any) {
     return this.usersService.findById(req.user.id);
   }
 }

@@ -1,13 +1,52 @@
-import {Inject, Injectable, InternalServerErrorException, NotFoundException} from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+  UnauthorizedException
+} from '@nestjs/common';
 import {ClientProxy} from "@nestjs/microservices";
 import {catchError} from "rxjs";
+import {CreateUserDto} from "./dto/create-user.dto";
+import {LoginUserDto} from "./dto/login-user.dto";
 
 @Injectable()
 export class UsersService {
 
   constructor(
-    @Inject('USERS_SERVICE') private readonly usersClient: ClientProxy
+    @Inject('USER_SERVICE') private readonly usersClient: ClientProxy
   ) {}
+
+  create(createUserDto: CreateUserDto) {
+    return this.usersClient.send('create_user', createUserDto).pipe(
+      catchError(err => {
+        if (err.statusCode === 400) {
+          throw new BadRequestException({
+            message: err.message,
+            error: err.error,
+            statusCode: err.statusCode
+          });
+        }
+        throw new InternalServerErrorException();
+      })
+    );
+  }
+
+  login(loginUserDto: LoginUserDto) {
+    return this.usersClient.send('login', loginUserDto).pipe(
+      catchError(err => {
+        if (err.statusCode === 401) {
+          throw new UnauthorizedException({
+            message: err.message,
+            error: err.error,
+            statusCode: err.statusCode
+          });
+        }
+        throw new InternalServerErrorException();
+      })
+    );
+  }
 
   findById(id: number) {
     return this.usersClient.send('find_user_by_id', { id }).pipe(

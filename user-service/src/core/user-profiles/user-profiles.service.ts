@@ -112,7 +112,7 @@ export class UserProfilesService {
       relations: ['profile']
     });
 
-    const response: { superadmin: boolean, client: boolean, companies: any[] } = {
+    const response: { superadmin: boolean, client: boolean, companies: { id: number, name: string, profiles: { id: number, name: string, domain: string, branchName: string }[] }[] } = {
       superadmin: user.isSuperAdmin,
       client: clientResponse?.client != null,
       companies: []
@@ -185,6 +185,6 @@ export class UserProfilesService {
 
     response.companies = Array.from(empresaMap.values());
 
-    return response;
+    return { contextOptions: response };
   }
 }
