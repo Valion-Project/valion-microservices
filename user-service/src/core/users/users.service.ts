@@ -69,9 +69,7 @@ export class UsersService {
     };
     const token = this.jwtService.sign(payload);
 
-    return {
-      token: token
-    };
+    return { token };
   }
 
   async findById(id: number) {

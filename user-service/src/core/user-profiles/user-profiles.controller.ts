@@ -25,4 +25,22 @@ export class UserProfilesController {
       throw new RpcException(err.response);
     }
   }
+
+  @MessagePattern('generate_profile_token')
+  async generateProfileToken(data: { userId: number, type: string, userProfileId: number }) {
+    try {
+      return await this.userProfilesService.generateProfileToken(data.userId, data.type, data.userProfileId);
+    } catch (err) {
+      throw new RpcException(err.response);
+    }
+  }
+
+  @MessagePattern('validate_profile_token')
+  async validateProfileToken(data: { type: string, userProfileId: number }) {
+    try {
+      return await this.userProfilesService.validateProfileToken(data.type, data.userProfileId);
+    } catch (err) {
+      throw new RpcException(err.response);
+    }
+  }
 }

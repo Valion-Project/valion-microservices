@@ -8,6 +8,7 @@ import {Profile} from "../profiles/entity/profiles.entity";
 import {ClientsModule, Transport} from "@nestjs/microservices";
 import {UserProfile} from "./entity/user-profiles.entity";
 import {User} from "../users/entity/users.entity";
+import {JwtModule} from "@nestjs/jwt";
 
 @Module({
   imports: [
@@ -33,6 +34,10 @@ import {User} from "../users/entity/users.entity";
         },
       },
     ]),
+    JwtModule.register({
+      secret: process.env.JWT_SECRET ?? 'Secret_Key_Valion_Back_022506',
+      signOptions: { expiresIn: '1w' },
+    }),
   ],
   controllers: [UserProfilesController, UserProfilesDevController],
   providers: [UserProfilesService]

@@ -1,4 +1,11 @@
-import {BadRequestException, Inject, Injectable, InternalServerErrorException, NotFoundException} from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+  UnauthorizedException
+} from '@nestjs/common';
 import {InjectRepository} from "@nestjs/typeorm";
 import {UserProfile} from "./entity/user-profiles.entity";
 import {Repository} from "typeorm";
@@ -7,6 +14,7 @@ import {Profile} from "../profiles/entity/profiles.entity";
 import {ClientProxy} from "@nestjs/microservices";
 import {CreateUserProfileDto} from "./dto/create-user-profile.dto";
 import {catchError, firstValueFrom, of} from "rxjs";
+import {JwtService} from "@nestjs/jwt";
 
 @Injectable()
 export class UserProfilesService {
@@ -17,6 +25,7 @@ export class UserProfilesService {
     @InjectRepository(Profile) private profileRepository: Repository<Profile>,
     @Inject('ADMIN_SERVICE') private adminClient: ClientProxy,
     @Inject('POINT_SERVICE') private pointClient: ClientProxy,
+    private jwtService: JwtService,
   ) {}
 
   async create(createUserProfileDto: CreateUserProfileDto) {
@@ -186,5 +195,79 @@ export class UserProfilesService {
     response.companies = Array.from(empresaMap.values());
 
     return { contextOptions: response };
+  }
+
+  async generateProfileToken(userId: number, type: string, userProfileId: number) {
+    const user = await this.userRepository.findOneBy({
+      id: userId
+    });
+    if (!user) {
+      throw new NotFoundException({
+        message: ['Usuario no encontrado.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    let payload = {
+      sub: user.id,
+      tokenVersion: user.tokenVersion,
+      type: type,
+      userProfileId: 0
+    }
+
+    if (type === 'ADMIN' || type === 'OPERATOR') {
+      const userProfile = await this.userProfileRepository.findOne({
+        where: { id: userProfileId },
+        relations: ['profile']
+      });
+      if (!userProfile) {
+        throw new NotFoundException({
+          message: ['Perfil de usuario no encontrado.'],
+          error: 'Not Found',
+          statusCode: 404
+        });
+      }
+
+      payload.userProfileId = userProfileId;
+    }
+
+    const token = this.jwtService.sign(payload);
+
+    return { token };
+  }
+
+  async validateProfileToken(type: string, userProfileId: number) {
+    if (type !== 'SUPERADMIN' && type !== 'ADMIN' && type !== 'OPERATOR' && type !== 'CLIENT') {
+      throw new UnauthorizedException({
+        message: ['No tienes permiso para acceder a este recurso.'],
+        error: 'Unauthorized',
+        statusCode: 401
+      });
+    }
+
+    if (type === 'ADMIN' || type === 'OPERATOR') {
+      const userProfile = await this.userProfileRepository.findOneBy({
+        id: userProfileId,
+      });
+      if (!userProfile) {
+        throw new UnauthorizedException({
+          message: ['No tienes permiso para acceder a este recurso.'],
+          error: 'Unauthorized',
+          statusCode: 401
+        });
+      }
+
+      return {
+        success: true,
+        type,
+        userProfile
+      }
+    }
+
+    return {
+      success: true,
+      type
+    }
   }
 }

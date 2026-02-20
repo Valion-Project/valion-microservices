@@ -20,6 +20,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
             throw new UnauthorizedException('Token inválido debido a cambio de contraseña');
         }
 
-        return { id: payload.sub };
+        if (payload.type === undefined) {
+            return { id: payload.sub };
+        } else {
+            return { id: payload.sub, type: payload.type, userProfileId: payload.userProfileId };
+        }
     }
 }
