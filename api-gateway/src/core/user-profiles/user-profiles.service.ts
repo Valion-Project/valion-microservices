@@ -11,19 +11,19 @@ export class UserProfilesService {
   ) {}
 
   create(createUserProfileDto: CreateUserProfileDto) {
-      return this.usersClient.send('create_user_profile', createUserProfileDto).pipe(
-        catchError(err => {
-          if (err.statusCode === 400) {
-            throw new BadRequestException({
-              message: err.message,
-              error: err.error,
-              statusCode: err.statusCode
-            });
-          }
-          throw new InternalServerErrorException();
-        })
-      );
-    }
+    return this.usersClient.send('create_user_profile', createUserProfileDto).pipe(
+      catchError(err => {
+        if (err.statusCode === 400) {
+          throw new BadRequestException({
+            message: err.message,
+            error: err.error,
+            statusCode: err.statusCode
+          });
+        }
+        throw new InternalServerErrorException();
+      })
+    );
+  }
 
   findContextOptions(userId: number) {
     return this.usersClient.send('find_context_options', { userId }).pipe(

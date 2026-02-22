@@ -11,11 +11,11 @@ import {
   ValidationPipe
 } from '@nestjs/common';
 import {SecurityEventsService} from "./security-events.service";
-import {CreateSecurityEventDto} from "./dto/create-security-event.dto";
 import {UpdateSecurityEventDto} from "./dto/update-security-event.dto";
+import {CreateSecurityEventDto} from "./dto/create-security-event.dto";
 
-@Controller('security-event-dev')
-export class SecurityEventsDevController {
+@Controller('security-events')
+export class SecurityEventsController {
 
   constructor(private securityEventsService: SecurityEventsService) {}
 

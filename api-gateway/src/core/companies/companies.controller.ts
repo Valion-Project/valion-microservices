@@ -5,7 +5,8 @@ import {
   Get,
   Param,
   ParseIntPipe,
-  Post, Put,
+  Post,
+  Put,
   UsePipes,
   ValidationPipe
 } from '@nestjs/common';
@@ -13,8 +14,8 @@ import {CompaniesService} from "./companies.service";
 import {CreateCompanyDto} from "./dto/create-company.dto";
 import {UpdateCompanyDto} from "./dto/update-company.dto";
 
-@Controller('companies-dev')
-export class CompaniesDevController {
+@Controller('companies')
+export class CompaniesController {
 
   constructor(private companiesService: CompaniesService) {}
 

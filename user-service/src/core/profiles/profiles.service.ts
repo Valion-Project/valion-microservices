@@ -32,7 +32,7 @@ export class ProfilesService {
         catchError(err => {
           if (err.statusCode === 404) {
             throw new BadRequestException({
-              message: ['Compañía no encontrada.'],
+              message: ['Empresa no encontrada.'],
               error: 'Bad Request',
               statusCode: 400
             });

@@ -11,11 +11,11 @@ import {
   ValidationPipe
 } from '@nestjs/common';
 import {LoyaltyProgramsService} from "./loyalty-programs.service";
-import {UpdateLoyaltyProgramDto} from "./dto/update-loyalty-program.dto";
 import {CreateLoyaltyProgramDto} from "./dto/create-loyalty-program.dto";
+import {UpdateLoyaltyProgramDto} from "./dto/update-loyalty-program.dto";
 
-@Controller('loyalty-programs-dev')
-export class LoyaltyProgramsDevController {
+@Controller('loyalty-programs')
+export class LoyaltyProgramsController {
 
   constructor(private loyaltyProgramsService: LoyaltyProgramsService) {}
 

@@ -1,8 +1,9 @@
-import {BadRequestException, Injectable} from '@nestjs/common';
+import {BadRequestException, Injectable, NotFoundException} from '@nestjs/common';
 import {InjectRepository} from "@nestjs/typeorm";
 import {Permission} from "./entity/permissions.entity";
 import {Repository} from "typeorm";
 import {CreatePermissionDto} from "./dto/create-permission.dto";
+import {UpdatePermissionDto} from "./dto/update-permission.dto";
 
 @Injectable()
 export class PermissionsService {
@@ -31,5 +32,50 @@ export class PermissionsService {
     const savedPermission = await this.permissionRepository.save(newPermission);
 
     return { permission: savedPermission };
+  }
+
+  async findAll() {
+    const permissions = await this.permissionRepository.find();
+    if (permissions.length === 0) {
+      throw new NotFoundException({
+        message: ['Permisos no encontrados.'],
+        error: "Not Found",
+        statusCode: 404
+      });
+    }
+
+    return { permissions };
+  }
+
+  async findById(id: number) {
+    const permission = await this.permissionRepository.findOneBy({
+      id
+    });
+    if (!permission) {
+      throw new NotFoundException({
+        message: ['Permiso no encontrado.'],
+        error: "Not Found",
+        statusCode: 404
+      });
+    }
+
+    return { permission };
+  }
+
+  async updateById(id: number, updatePermissionDto: UpdatePermissionDto) {
+    const permission = await this.permissionRepository.findOneBy({
+      id
+    });
+    if (!permission) {
+      throw new NotFoundException({
+        message: ['Permiso no encontrado.'],
+        error: "Not Found",
+        statusCode: 404
+      });
+    }
+
+    await this.permissionRepository.update(id, updatePermissionDto);
+
+    return this.findById(id);
   }
 }

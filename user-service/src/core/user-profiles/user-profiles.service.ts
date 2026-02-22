@@ -135,7 +135,7 @@ export class UserProfilesService {
           catchError(err => {
             if (err.statusCode === 404) {
               throw new NotFoundException({
-                message: ['Compañía no encontrada.'],
+                message: ['Empresa no encontrada.'],
                 error: 'Bad Request',
                 statusCode: 400
               });
