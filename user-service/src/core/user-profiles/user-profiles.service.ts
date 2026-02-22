@@ -45,7 +45,7 @@ export class UserProfilesService {
       id: createUserProfileDto.userId
     });
     if (!user) {
-      throw new NotFoundException({
+      throw new BadRequestException({
         message: ['Usuario no encontrado.'],
         error: 'Not Found',
         statusCode: 404
@@ -56,7 +56,7 @@ export class UserProfilesService {
       id: createUserProfileDto.profileId
     });
     if (!profile) {
-      throw new NotFoundException({
+      throw new BadRequestException({
         message: ['Perfil no encontrado.'],
         error: 'Not Found',
         statusCode: 404

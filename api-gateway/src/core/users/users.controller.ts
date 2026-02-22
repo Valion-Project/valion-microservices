@@ -40,7 +40,7 @@ export class UsersController {
   @Get('my')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('jwt-auth')
-  getProfile(@Request() req: any) {
+  getMyUser(@Request() req: any) {
     return this.usersService.findById(req.user.id);
   }
 }
