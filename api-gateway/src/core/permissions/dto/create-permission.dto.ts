@@ -1,6 +1,9 @@
 import {IsEnum, IsNotEmpty} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import {PermissionDomain} from "../entity/permissions.entity";
+
+export enum PermissionDomain {
+  OPERATOR = 'OPERATOR', ADMIN = 'ADMIN', BRANCH = 'BRANCH'
+}
 
 export class CreatePermissionDto {
   @IsNotEmpty({ message: 'El nombre es obligatorio.' })
