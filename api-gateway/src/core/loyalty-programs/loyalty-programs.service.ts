@@ -1,4 +1,4 @@
-import {BadRequestException, Inject, Injectable, InternalServerErrorException} from '@nestjs/common';
+import {BadRequestException, Inject, Injectable, InternalServerErrorException, NotFoundException} from '@nestjs/common';
 import {ClientProxy} from "@nestjs/microservices";
 import {CreateLoyaltyProgramDto} from "./dto/create-loyalty-program.dto";
 import {catchError} from "rxjs";
@@ -30,7 +30,7 @@ export class LoyaltyProgramsService {
     return this.adminClient.send('find_all_loyalty_programs', {}).pipe(
       catchError(err => {
         if (err.statusCode === 404) {
-          throw new BadRequestException({
+          throw new NotFoundException({
             message: err.message,
             error: err.error,
             statusCode: err.statusCode
@@ -45,7 +45,7 @@ export class LoyaltyProgramsService {
     return this.adminClient.send('update_loyalty_program_by_id', { id, updateLoyaltyProgramDto }).pipe(
       catchError(err => {
         if (err.statusCode === 404) {
-          throw new BadRequestException({
+          throw new NotFoundException({
             message: err.message,
             error: err.error,
             statusCode: err.statusCode
