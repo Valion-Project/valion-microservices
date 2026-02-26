@@ -73,4 +73,19 @@ export class ClientsService {
 
     return { client };
   }
+
+  async findByIdentificationNumber(identificationNumber: string) {
+    const client = await this.clientRepository.findOneBy({
+      identificationNumber
+    });
+    if (!client) {
+      throw new NotFoundException({
+        message: ['Cliente no encontrado.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    return { client };
+  }
 }

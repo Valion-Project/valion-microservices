@@ -34,6 +34,12 @@ export class UserProfilesService {
             error: err.error,
             statusCode: err.statusCode
           });
+        } else if (err.statusCode === 500) {
+          throw new InternalServerErrorException({
+            message: err.message,
+            error: err.error,
+            statusCode: err.statusCode
+          });
         }
         throw new InternalServerErrorException();
       })

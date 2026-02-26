@@ -26,6 +26,13 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
+  @Get('validate-token')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('jwt-auth')
+  validateToken(@Request() req: any) {
+    return this.usersService.validateToken(req.user.id);
+  }
+
   @Post('login')
   @UsePipes(new ValidationPipe({ whitelist: true }))
   login(@Body() loginUserDto: LoginUserDto) {

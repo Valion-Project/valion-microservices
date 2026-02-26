@@ -12,8 +12,8 @@ import {
 import {ClientsService} from "./clients.service";
 import {CreateClientDto} from "./dto/create-client.dto";
 
-@Controller('clients-dev')
-export class ClientsDevController {
+@Controller('clients')
+export class ClientsController {
 
   constructor(private clientsService: ClientsService) {}
 

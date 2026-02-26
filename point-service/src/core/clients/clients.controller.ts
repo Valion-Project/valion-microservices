@@ -25,4 +25,13 @@ export class ClientsController {
       throw new RpcException(err.response);
     }
   }
+
+  @MessagePattern('find_client_by_identification_number')
+  async findByIdentificationNumber(data: { identificationNumber: string }) {
+    try {
+      return await this.clientsService.findByIdentificationNumber(data.identificationNumber);
+    } catch (err) {
+      throw new RpcException(err.response);
+    }
+  }
 }

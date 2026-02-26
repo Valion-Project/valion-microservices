@@ -18,6 +18,15 @@ export class UsersController {
     }
   }
 
+  @MessagePattern('validate_token')
+  async validateToken(data: { id: number }) {
+    try {
+      return await this.usersService.validateToken(data.id);
+    } catch (err) {
+      throw new RpcException(err.response);
+    }
+  }
+
   @MessagePattern('login')
   async login(data: LoginUserDto) {
     try {

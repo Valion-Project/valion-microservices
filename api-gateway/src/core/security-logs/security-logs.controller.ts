@@ -1,11 +1,11 @@
 import {Body, Controller, Post, UsePipes, ValidationPipe} from '@nestjs/common';
+import {ResetPasswordDto} from "./dto/reset-password.dto";
 import {SecurityLogsService} from "./security-logs.service";
 import {SendVerificationCodeDto} from "./dto/send-verification-code.dto";
-import {ResetPasswordDto} from "./dto/reset-password.dto";
 import {FindVerificationCodeDto} from "./dto/find-verification-code.dto";
 
-@Controller('security-logs-dev')
-export class SecurityLogsDevController {
+@Controller('security-logs')
+export class SecurityLogsController {
 
   constructor(private securityLogsService: SecurityLogsService) {}
 
