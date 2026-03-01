@@ -10,6 +10,15 @@ export class SecurityLogsController {
 
   constructor(private securityLogsService: SecurityLogsService) {}
 
+  @MessagePattern('find_all_security_logs')
+  async findAllSecurityLogs() {
+    try {
+      return await this.securityLogsService.findAll();
+    } catch (err) {
+      throw new RpcException(err.response);
+    }
+  }
+
   @MessagePattern('send_verification_code')
   async sendVerificationCode(data: SendVerificationCodeDto) {
     try {

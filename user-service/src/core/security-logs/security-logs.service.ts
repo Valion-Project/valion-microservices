@@ -20,6 +20,21 @@ export class SecurityLogsService {
     private mailService: MailService
   ) {}
 
+  async findAll() {
+    const securityLogs = await this.securityLogRepository.find({
+      relations: ['user', 'securityEvent'],
+    });
+    if (securityLogs.length === 0) {
+      throw new NotFoundException({
+        message: ['Registros de seguridad no encontrados.'],
+        error: "Not Found",
+        statusCode: 404
+      });
+    }
+
+    return { securityLogs };
+  }
+
   async sendVerificationCode(sendVerificationCodeDto: SendVerificationCodeDto) {
     const user = await this.userRepository.findOneBy({
       email: sendVerificationCodeDto.email

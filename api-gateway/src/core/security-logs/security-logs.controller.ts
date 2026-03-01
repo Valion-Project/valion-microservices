@@ -1,4 +1,4 @@
-import {Body, Controller, Post, UsePipes, ValidationPipe} from '@nestjs/common';
+import {Body, Controller, Get, Post, UsePipes, ValidationPipe} from '@nestjs/common';
 import {ResetPasswordDto} from "./dto/reset-password.dto";
 import {SecurityLogsService} from "./security-logs.service";
 import {SendVerificationCodeDto} from "./dto/send-verification-code.dto";
@@ -8,6 +8,11 @@ import {FindVerificationCodeDto} from "./dto/find-verification-code.dto";
 export class SecurityLogsController {
 
   constructor(private securityLogsService: SecurityLogsService) {}
+
+  @Get()
+  getAll() {
+    return this.securityLogsService.findAll();
+  }
 
   @Post('verification/send-verification-code')
   @UsePipes(new ValidationPipe({ whitelist: true }))

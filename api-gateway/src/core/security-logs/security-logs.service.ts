@@ -12,6 +12,21 @@ export class SecurityLogsService {
     @Inject('USER_SERVICE') private readonly usersClient: ClientProxy
   ) {}
 
+  findAll() {
+    return this.usersClient.send('find_all_security_logs', {}).pipe(
+      catchError(err => {
+        if (err.statusCode === 404) {
+          throw new NotFoundException({
+            message: err.message,
+            error: err.error,
+            statusCode: err.statusCode
+          });
+        }
+        throw new InternalServerErrorException();
+      })
+    );
+  }
+
   sendVerificationCode(sendVerificationCodeDto: SendVerificationCodeDto) {
     return this.usersClient.send('send_verification_code', sendVerificationCodeDto).pipe(
       catchError(err => {

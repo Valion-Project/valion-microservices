@@ -6,13 +6,15 @@ import {TypeOrmModule} from "@nestjs/typeorm";
 import {Profile} from "./entity/profiles.entity";
 import {ClientsModule, Transport} from "@nestjs/microservices";
 import {ProfilesDevController} from "./profiles-dev.controller";
+import {User} from "../users/entity/users.entity";
+import {Permission} from "../permissions/entity/permissions.entity";
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true
     }),
-    TypeOrmModule.forFeature([Profile]),
+    TypeOrmModule.forFeature([Profile, Permission, User]),
     ClientsModule.register([
       {
         name: 'ADMIN_SERVICE',

@@ -40,6 +40,21 @@ export class CompaniesService {
     )
   }
 
+  findById(id: number) {
+    return this.adminClient.send('find_company_by_id', { id }).pipe(
+      catchError(err => {
+        if (err.statusCode === 404) {
+          throw new NotFoundException({
+            message: err.message,
+            error: err.error,
+            statusCode: err.statusCode
+          });
+        }
+        throw new InternalServerErrorException();
+      })
+    )
+  }
+
   updateById(id: number, updateCompanyDto: CreateCompanyDto) {
     return this.adminClient.send('update_company_by_id', { id, updateCompanyDto }).pipe(
       catchError(err => {

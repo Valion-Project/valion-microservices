@@ -113,7 +113,7 @@ export class UserProfilesService {
     const clientResponse = await firstValueFrom(
       this.pointClient.send('find_client_by_user_id', { userId: userId }).pipe(
         catchError((err) => {
-          if (err.code === 'ENOTFOUND') {
+          if (err.code === 'ENOTFOUND' || err.code === 'ECONNREFUSED') {
             throw new InternalServerErrorException({
               message: ['Ocurrió un error en su petición.'],
               error: 'Internal Server Error:',

@@ -30,6 +30,11 @@ export class CompaniesController {
     return this.companiesService.findAll();
   }
 
+  @Get('id/:id')
+  getById(@Param('id', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) id: number) {
+    return this.companiesService.findById(id);
+  }
+
   @Put(':id')
   @UsePipes(new ValidationPipe({ whitelist: true }))
   updateById(@Param('id', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) id: number, @Body() updateCompanyDto: UpdateCompanyDto) {
