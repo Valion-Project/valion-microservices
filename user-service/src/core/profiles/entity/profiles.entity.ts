@@ -2,10 +2,11 @@ import {
     Column,
     CreateDateColumn,
     DeleteDateColumn,
-    Entity,
+    Entity, OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn
 } from 'typeorm';
+import {ProfilePermission} from "../../profile-permissions/entity/profile-permissions.entity";
 
 export enum ProfileDomain {
     OPERATOR = 'OPERATOR', ADMIN = 'ADMIN'
@@ -33,4 +34,7 @@ export class Profile {
 
     @DeleteDateColumn()
     deletedAt: Date;
+
+    @OneToMany(() => ProfilePermission, (profilePermission) => profilePermission.profile)
+    profilePermissions: ProfilePermission[];
 }

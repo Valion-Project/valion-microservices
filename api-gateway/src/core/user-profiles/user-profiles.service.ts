@@ -61,8 +61,8 @@ export class UserProfilesService {
     );
   }
 
-  validateProfileToken(type: string, userProfileId: number) {
-    return this.usersClient.send('validate_profile_token', { type, userProfileId }).pipe(
+  validateProfileToken(userId: number, type: string, userProfileId: number) {
+    return this.usersClient.send('validate_profile_token', { userId, type, userProfileId }).pipe(
       catchError(err => {
         if (err.statusCode === 401) {
           throw new UnauthorizedException({

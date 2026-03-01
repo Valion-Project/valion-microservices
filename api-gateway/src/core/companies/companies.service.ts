@@ -2,6 +2,7 @@ import {BadRequestException, Inject, Injectable, InternalServerErrorException, N
 import {ClientProxy} from "@nestjs/microservices";
 import {CreateCompanyDto} from "./dto/create-company.dto";
 import {catchError} from "rxjs";
+import { UpdateCompanyDto } from './dto/update-company.dto';
 
 @Injectable()
 export class CompaniesService {
@@ -55,7 +56,7 @@ export class CompaniesService {
     )
   }
 
-  updateById(id: number, updateCompanyDto: CreateCompanyDto) {
+  updateById(id: number, updateCompanyDto: UpdateCompanyDto) {
     return this.adminClient.send('update_company_by_id', { id, updateCompanyDto }).pipe(
       catchError(err => {
         if (err.statusCode === 404) {

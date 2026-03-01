@@ -36,9 +36,9 @@ export class UserProfilesController {
   }
 
   @MessagePattern('validate_profile_token')
-  async validateProfileToken(data: { type: string, userProfileId: number }) {
+  async validateProfileToken(data: { userId: number, type: string, userProfileId: number }) {
     try {
-      return await this.userProfilesService.validateProfileToken(data.type, data.userProfileId);
+      return await this.userProfilesService.validateProfileToken(data.userId, data.type, data.userProfileId);
     } catch (err) {
       throw new RpcException(err.response);
     }

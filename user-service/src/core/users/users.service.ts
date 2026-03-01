@@ -112,18 +112,18 @@ export class UsersService {
       });
       await securityLogRepository.save(newSecurityLog);
 
-      return { savedUser, token };
+      return { user: savedUser, token };
     });
 
     await firstValueFrom(
-      this.pointClient.send('create_client', { identificationNumber: createUserDto.identificationNumber, userId: savedUserToken.savedUser.id }).pipe(
+      this.pointClient.send('create_client', { identificationNumber: createUserDto.identificationNumber, userId: savedUserToken.user.id }).pipe(
         catchError(() => of(null))
       )
     );
 
     await this.mailService.sendAccountVerificationEmail(createUserDto.email, savedUserToken.token);
 
-    return { user: savedUserToken.savedUser };
+    return { user: savedUserToken.user };
   }
 
   async validateToken(userId: number) {

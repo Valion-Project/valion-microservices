@@ -33,6 +33,6 @@ export class UserProfilesController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('jwt-auth')
   validateProfileToken(@Request() req: any) {
-    return this.userProfilesService.validateProfileToken(req.user.type, req.user.userProfileId);
+    return this.userProfilesService.validateProfileToken(req.user.id, req.user.type, req.user.userProfileId);
   }
 }

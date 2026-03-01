@@ -13,7 +13,7 @@ export class ProfilePermission {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => Profile)
+    @ManyToOne(() => Profile, (profile) => profile.profilePermissions)
     profile: Profile;
 
     @ManyToOne(() => Permission)

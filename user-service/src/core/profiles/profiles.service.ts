@@ -128,9 +128,9 @@ export class ProfilesService {
         await profilePermissionRepository.save(newProfilePermission);
       }
 
-      return { savedProfile };
+      return { profile: savedProfile };
     });
 
-    return { profile: savedProfileOnboarding.savedProfile };
+    return { profile: savedProfileOnboarding.profile };
   }
 }

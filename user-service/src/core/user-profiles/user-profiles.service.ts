@@ -190,7 +190,7 @@ export class UserProfilesService {
 
         if (!profileEntry) {
           const newProfileEntry = {
-            id: userProfile.profile.id,
+            id: userProfile.id,
             name: userProfile.profile.name,
             domain: userProfile.profile.domain,
             branchName: branchName
@@ -246,7 +246,7 @@ export class UserProfilesService {
     return { token };
   }
 
-  async validateProfileToken(type: string, userProfileId: number) {
+  async validateProfileToken(userId: number, type: string, userProfileId: number) {
     if (type !== 'SUPERADMIN' && type !== 'ADMIN' && type !== 'OPERATOR' && type !== 'CLIENT') {
       throw new UnauthorizedException({
         message: ['No tienes permiso para acceder a este recurso.'],
@@ -256,8 +256,9 @@ export class UserProfilesService {
     }
 
     if (type === 'ADMIN' || type === 'OPERATOR') {
-      const userProfile = await this.userProfileRepository.findOneBy({
-        id: userProfileId,
+      const userProfile = await this.userProfileRepository.findOne({
+        where: { id: userProfileId, user: { id: userId } },
+        relations: ['profile', 'profile.profilePermissions', 'profile.profilePermissions.permission']
       });
       if (!userProfile) {
         throw new UnauthorizedException({
