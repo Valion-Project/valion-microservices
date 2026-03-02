@@ -3,6 +3,7 @@ import {UsersService} from "./users.service";
 import {MessagePattern, RpcException} from "@nestjs/microservices";
 import {CreateUserDto} from "./dto/create-user.dto";
 import {LoginUserDto} from "./dto/login-user.dto";
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -40,6 +41,15 @@ export class UsersController {
   async findById(data: { id: number }) {
     try {
       return await this.usersService.findById(data.id);
+    } catch (err) {
+      throw new RpcException(err.response);
+    }
+  }
+
+  @MessagePattern('update_user_by_id')
+  async updateUserById(data: { id: number, updateUserDto: UpdateUserDto }) {
+    try {
+      return await this.usersService.updateById(data.id, data.updateUserDto);
     } catch (err) {
       throw new RpcException(err.response);
     }

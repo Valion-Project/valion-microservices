@@ -10,6 +10,7 @@ import {ClientProxy} from "@nestjs/microservices";
 import {catchError} from "rxjs";
 import {CreateUserDto} from "./dto/create-user.dto";
 import {LoginUserDto} from "./dto/login-user.dto";
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -111,5 +112,20 @@ export class UsersService {
         throw new InternalServerErrorException();
       })
     );
+  }
+
+  updateById(id: number, updateUserDto: UpdateUserDto) {
+    return this.usersClient.send('update_user_by_id', { id, updateUserDto }).pipe(
+      catchError(err => {
+        if (err.statusCode === 404) {
+          throw new NotFoundException({
+            message: err.message,
+            error: err.error,
+            statusCode: err.statusCode
+          });
+        }
+        throw new InternalServerErrorException();
+      })
+    )
   }
 }

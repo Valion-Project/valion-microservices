@@ -18,6 +18,7 @@ import {SecurityEvent} from "../security-events/entity/security-events.entity";
 import {MailService} from "../../mail/mail.service";
 import {ClientProxy} from "@nestjs/microservices";
 import {catchError, firstValueFrom, of} from "rxjs";
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -244,6 +245,23 @@ export class UsersService {
     }
 
     return { user };
+  }
+
+  async updateById(id: number, updateUserDto: UpdateUserDto) {
+    const user = await this.userRepository.findOneBy({
+      id
+    });
+    if (!user) {
+      throw new NotFoundException({
+        message: ['Usuario no encontrado.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    await this.userRepository.update(id, updateUserDto);
+
+    return this.findById(id);
   }
 
   async findByIdToValidateToken(id: number) {

@@ -5,6 +5,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
   Request,
   UseGuards,
   UsePipes, ValidationPipe
@@ -14,6 +15,7 @@ import {JwtAuthGuard} from "../../security/jwt-auth.guard";
 import {ApiBearerAuth} from "@nestjs/swagger";
 import {LoginUserDto} from "./dto/login-user.dto";
 import {CreateUserDto} from "./dto/create-user.dto";
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -49,5 +51,11 @@ export class UsersController {
   @ApiBearerAuth('jwt-auth')
   getMyUser(@Request() req: any) {
     return this.usersService.findById(req.user.id);
+  }
+
+  @Put(':id')
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  updateById(@Param('id', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) id: number, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.updateById(id, updateUserDto);
   }
 }
