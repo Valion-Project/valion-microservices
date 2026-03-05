@@ -25,7 +25,7 @@ export class RewardsDevController {
   }
 
   @Get('company/:companyId')
-  getAll(@Param('companyId', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) companyId: number) {
+  getByCompanyId(@Param('companyId', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) companyId: number) {
     return this.rewardsService.findByCompanyId(companyId);
   }
 

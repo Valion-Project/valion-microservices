@@ -9,12 +9,12 @@ import {
   UsePipes,
   ValidationPipe
 } from '@nestjs/common';
+import {UpdateBranchDto} from "./dto/update-branch.dto";
 import {BranchesService} from "./branches.service";
 import {CreateBranchDto} from "./dto/create-branch.dto";
-import {UpdateBranchDto} from "./dto/update-branch.dto";
 
-@Controller('branches-dev')
-export class BranchesDevController {
+@Controller('branches')
+export class BranchesController {
 
   constructor(private branchesService: BranchesService) {}
 

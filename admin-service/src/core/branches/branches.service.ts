@@ -4,6 +4,7 @@ import {Company} from "../companies/entity/companies.entity";
 import {Repository} from "typeorm";
 import {Branch} from "./entity/branches.entity";
 import {CreateBranchDto} from "./dto/create-branch.dto";
+import {UpdateBranchDto} from "./dto/update-branch.dto";
 
 @Injectable()
 export class BranchesService {
@@ -30,10 +31,10 @@ export class BranchesService {
       id: createBranchDto.companyId
     });
     if (!company) {
-      throw new NotFoundException({
+      throw new BadRequestException({
         message: ['Empresa no encontrada.'],
-        error: 'Not Found',
-        statusCode: 404
+        error: "Bad Request",
+        statusCode: 400
       });
     }
 
@@ -45,6 +46,21 @@ export class BranchesService {
     const savedBranch = await this.branchRepository.save(newBranch);
 
     return { branch: savedBranch };
+  }
+
+  async findByCompanyId(companyId: number) {
+    const branches = await this.branchRepository.findBy({
+      company: { id: companyId }
+    });
+    if (branches.length === 0) {
+      throw new NotFoundException({
+        message: ['Sucursales no encontradas.'],
+        error: 'Not Found',
+        statusCode: 404
+      })
+    }
+
+    return { branches };
   }
 
   async findById(id: number) {
@@ -61,5 +77,22 @@ export class BranchesService {
     }
 
     return { branch };
+  }
+
+  async updateById(id: number, updateBranchDto: UpdateBranchDto) {
+    const branch = await this.branchRepository.findOneBy({
+      id
+    });
+    if (!branch) {
+      throw new NotFoundException({
+        message: ['Sucursal no encontrada.'],
+        error: 'Not Found',
+        statusCode: 404
+      })
+    }
+
+    await this.branchRepository.update(id, updateBranchDto);
+
+    return this.findById(id);
   }
 }
