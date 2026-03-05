@@ -1,18 +1,18 @@
 import {BadRequestException, Inject, Injectable, InternalServerErrorException, NotFoundException} from '@nestjs/common';
 import {ClientProxy} from "@nestjs/microservices";
-import {CreateEventTypeDto} from "./dto/create-event-type.dto";
 import {catchError} from "rxjs";
-import {UpdateEventTypeDto} from "./dto/update-event-type.dto";
+import {CreateRewardDto} from "./dto/create-reward.dto";
+import {UpdateRewardDto} from "./dto/update-reward.dto";
 
 @Injectable()
-export class EventTypesService {
+export class RewardsService {
 
   constructor(
     @Inject('POINT_SERVICE') private readonly pointClient: ClientProxy
   ) {}
 
-  create(createEventTypeDto: CreateEventTypeDto) {
-    return this.pointClient.send('create_event_type', createEventTypeDto).pipe(
+  create(createRewardDto: CreateRewardDto) {
+    return this.pointClient.send('create_reward', createRewardDto).pipe(
       catchError(err => {
         if (err.statusCode === 400) {
           throw new BadRequestException({
@@ -26,8 +26,8 @@ export class EventTypesService {
     );
   }
 
-  findAll() {
-    return this.pointClient.send('find_all_event_types', {}).pipe(
+  findByCompanyId(companyId: number) {
+    return this.pointClient.send('find_rewards_by_company_id', { companyId }).pipe(
       catchError(err => {
         if (err.statusCode === 404) {
           throw new NotFoundException({
@@ -41,8 +41,8 @@ export class EventTypesService {
     )
   }
 
-  updateById(id: number, updateEventTypeDto: UpdateEventTypeDto) {
-    return this.pointClient.send('update_event_type_by_id', { id, updateEventTypeDto }).pipe(
+  updateById(id: number, updateRewardDto: UpdateRewardDto) {
+    return this.pointClient.send('update_reward_by_id', { id, updateRewardDto }).pipe(
       catchError(err => {
         if (err.statusCode === 404) {
           throw new NotFoundException({

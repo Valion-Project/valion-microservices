@@ -11,6 +11,7 @@ import {UserProfile} from "../user-profiles/entity/user-profiles.entity";
 import * as bcrypt from 'bcrypt';
 import {CreateOnboardingProfileDto} from "./dto/create-onboarding-profile.dto";
 import {Permission, PermissionDomain} from "../permissions/entity/permissions.entity";
+import {UpdateProfileDto} from "./dto/update-profile.dto";
 
 @Injectable()
 export class ProfilesService {
@@ -132,5 +133,64 @@ export class ProfilesService {
     });
 
     return { profile: savedProfileOnboarding.profile };
+  }
+
+  async findAllByCompanyId(companyId: number) {
+    const profiles = await this.profileRepository.find({
+      where: { companyId: companyId }
+    });
+    if (profiles.length === 0) {
+      throw new NotFoundException({
+        message: ['Perfiles no encontrados.'],
+        error: "Not Found",
+        statusCode: 404
+      });
+    }
+
+    return { profiles: profiles };
+  }
+
+  async findById(id: number) {
+    const profile = await this.profileRepository.findOneBy({
+      id
+    });
+    if (!profile) {
+      throw new NotFoundException({
+        message: ['Perfil no encontrado.'],
+        error: "Not Found",
+        statusCode: 404
+      });
+    }
+
+    return { profile: profile };
+  }
+
+  async updateById(id: number, updateProfileDto: UpdateProfileDto) {
+    const profile = await this.profileRepository.findOneBy({
+      id
+    });
+    if (!profile) {
+      throw new NotFoundException({
+        message: ['Perfil no encontrado.'],
+        error: "Not Found",
+        statusCode: 404
+      });
+    }
+
+    const profileExisting = await this.profileRepository.findOneBy({
+      name: updateProfileDto.name,
+      companyId: profile.companyId
+    });
+    if (profileExisting && profileExisting.id !== id) {
+      throw new BadRequestException({
+        message: ['Perfil ya existente.'],
+        error: "Bad Request",
+        statusCode: 400
+      });
+    }
+
+    await this.profileRepository.update(id, updateProfileDto);
+
+    return this.findById(id);
   }
 }

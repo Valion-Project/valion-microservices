@@ -1,18 +1,17 @@
 import {BadRequestException, Inject, Injectable, InternalServerErrorException, NotFoundException} from '@nestjs/common';
 import {ClientProxy} from "@nestjs/microservices";
-import {CreateEventTypeDto} from "./dto/create-event-type.dto";
 import {catchError} from "rxjs";
-import {UpdateEventTypeDto} from "./dto/update-event-type.dto";
+import {CreateCompanyProgramDto} from "./dto/create-company-program.dto";
 
 @Injectable()
-export class EventTypesService {
+export class CompanyProgramsService {
 
   constructor(
-    @Inject('POINT_SERVICE') private readonly pointClient: ClientProxy
+    @Inject('ADMIN_SERVICE') private readonly adminClient: ClientProxy
   ) {}
 
-  create(createEventTypeDto: CreateEventTypeDto) {
-    return this.pointClient.send('create_event_type', createEventTypeDto).pipe(
+  create(createCompanyProgramDto: CreateCompanyProgramDto) {
+    return this.adminClient.send('create_company_program', createCompanyProgramDto).pipe(
       catchError(err => {
         if (err.statusCode === 400) {
           throw new BadRequestException({
@@ -26,8 +25,8 @@ export class EventTypesService {
     );
   }
 
-  findAll() {
-    return this.pointClient.send('find_all_event_types', {}).pipe(
+  findCompanyProgramAvailabilityInLoyaltyPrograms(companyId: number) {
+    return this.adminClient.send('find_company_program_availability_in_loyalty_programs', { companyId }).pipe(
       catchError(err => {
         if (err.statusCode === 404) {
           throw new NotFoundException({
@@ -41,8 +40,8 @@ export class EventTypesService {
     )
   }
 
-  updateById(id: number, updateEventTypeDto: UpdateEventTypeDto) {
-    return this.pointClient.send('update_event_type_by_id', { id, updateEventTypeDto }).pipe(
+  findCompanyProgramAvailabilityInCompanies(loyaltyProgramId: number) {
+    return this.adminClient.send('find_company_program_availability_in_companies', { loyaltyProgramId }).pipe(
       catchError(err => {
         if (err.statusCode === 404) {
           throw new NotFoundException({
@@ -53,6 +52,6 @@ export class EventTypesService {
         }
         throw new InternalServerErrorException();
       })
-    );
+    )
   }
 }

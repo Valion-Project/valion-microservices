@@ -1,9 +1,6 @@
 import { Module } from '@nestjs/common';
-import { RewardsController } from './rewards.controller';
-import { RewardsService } from './rewards.service';
-import { RewardsDevController } from './rewards-dev.controller';
-import {TypeOrmModule} from "@nestjs/typeorm";
-import {Reward} from "./entity/rewards.entity";
+import { CompanyProgramsController } from './company-programs.controller';
+import { CompanyProgramsService } from './company-programs.service';
 import {ConfigModule} from "@nestjs/config";
 import {ClientsModule, Transport} from "@nestjs/microservices";
 
@@ -12,7 +9,6 @@ import {ClientsModule, Transport} from "@nestjs/microservices";
     ConfigModule.forRoot({
       isGlobal: true
     }),
-    TypeOrmModule.forFeature([Reward]),
     ClientsModule.register([
       {
         name: 'ADMIN_SERVICE',
@@ -24,7 +20,7 @@ import {ClientsModule, Transport} from "@nestjs/microservices";
       },
     ]),
   ],
-  controllers: [RewardsController, RewardsDevController],
-  providers: [RewardsService]
+  controllers: [CompanyProgramsController],
+  providers: [CompanyProgramsService]
 })
-export class RewardsModule {}
+export class CompanyProgramsModule {}

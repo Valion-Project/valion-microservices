@@ -1,9 +1,6 @@
 import { Module } from '@nestjs/common';
 import { RewardsController } from './rewards.controller';
 import { RewardsService } from './rewards.service';
-import { RewardsDevController } from './rewards-dev.controller';
-import {TypeOrmModule} from "@nestjs/typeorm";
-import {Reward} from "./entity/rewards.entity";
 import {ConfigModule} from "@nestjs/config";
 import {ClientsModule, Transport} from "@nestjs/microservices";
 
@@ -12,19 +9,18 @@ import {ClientsModule, Transport} from "@nestjs/microservices";
     ConfigModule.forRoot({
       isGlobal: true
     }),
-    TypeOrmModule.forFeature([Reward]),
     ClientsModule.register([
       {
-        name: 'ADMIN_SERVICE',
+        name: 'POINT_SERVICE',
         transport: Transport.TCP,
         options: {
-          host: process.env.ADMIN_SERVICE_HOST ?? 'localhost',
-          port: Number(process.env.PORT_ADMIN) ?? 3022,
+          host: process.env.POINT_SERVICE_HOST ?? 'localhost',
+          port: Number(process.env.PORT_POINT) ?? 3023,
         },
       },
     ]),
   ],
-  controllers: [RewardsController, RewardsDevController],
+  controllers: [RewardsController],
   providers: [RewardsService]
 })
 export class RewardsModule {}

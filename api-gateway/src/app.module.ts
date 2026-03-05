@@ -10,9 +10,12 @@ import { CompaniesModule } from './core/companies/companies.module';
 import { EventTypesModule } from './core/event-types/event-types.module';
 import { SecurityLogsModule } from './core/security-logs/security-logs.module';
 import { ClientsModule } from './core/clients/clients.module';
+import { CompanyProgramsModule } from './core/company-programs/company-programs.module';
+import { LevelsModule } from './core/levels/levels.module';
+import { RewardsModule } from './core/rewards/rewards.module';
 
 @Module({
-  imports: [UsersModule, UserProfilesModule, PermissionsModule, SecurityEventsModule, LoyaltyProgramsModule, CompaniesModule, EventTypesModule, SecurityLogsModule, ClientsModule],
+  imports: [UsersModule, UserProfilesModule, PermissionsModule, SecurityEventsModule, LoyaltyProgramsModule, CompaniesModule, EventTypesModule, SecurityLogsModule, ClientsModule, CompanyProgramsModule, LevelsModule, RewardsModule],
   controllers: [AppController],
   providers: [AppService],
 })

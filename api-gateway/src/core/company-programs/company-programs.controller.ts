@@ -1,15 +1,19 @@
 import {
-  BadRequestException, Body,
+  BadRequestException,
+  Body,
   Controller,
   Get,
   Param,
-  ParseIntPipe, Post, UsePipes, ValidationPipe
+  ParseIntPipe,
+  Post,
+  UsePipes,
+  ValidationPipe
 } from '@nestjs/common';
 import {CompanyProgramsService} from "./company-programs.service";
 import {CreateCompanyProgramDto} from "./dto/create-company-program.dto";
 
-@Controller('company-programs-dev')
-export class CompanyProgramsDevController {
+@Controller('company-programs')
+export class CompanyProgramsController {
 
   constructor(private companyProgramsService: CompanyProgramsService) {}
 

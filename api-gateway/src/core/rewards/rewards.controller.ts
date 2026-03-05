@@ -9,12 +9,12 @@ import {
   UsePipes,
   ValidationPipe
 } from '@nestjs/common';
+import {UpdateRewardDto} from "./dto/update-reward.dto";
 import {RewardsService} from "./rewards.service";
 import {CreateRewardDto} from "./dto/create-reward.dto";
-import {UpdateRewardDto} from "./dto/update-reward.dto";
 
-@Controller('rewards-dev')
-export class RewardsDevController {
+@Controller('rewards')
+export class RewardsController {
 
   constructor(private rewardsService: RewardsService) {}
 

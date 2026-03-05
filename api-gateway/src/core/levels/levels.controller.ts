@@ -5,7 +5,8 @@ import {
   Get,
   Param,
   ParseIntPipe,
-  Post, Put,
+  Post,
+  Put,
   UsePipes,
   ValidationPipe
 } from '@nestjs/common';
@@ -13,8 +14,8 @@ import {LevelsService} from "./levels.service";
 import {CreateLevelDto} from "./dto/create-level.dto";
 import {UpdateLevelDto} from "./dto/update-level.dto";
 
-@Controller('levels-dev')
-export class LevelsDevController {
+@Controller('levels')
+export class LevelsController {
 
   constructor(private levelsService: LevelsService) {}
 

@@ -13,15 +13,15 @@ export class Reward {
     id: number;
 
     @Column()
-    name: number;
+    name: string;
 
     @Column()
     description: string;
 
-    @Column()
+    @Column({ nullable: true })
     pointCost: number;
 
-    @Column()
+    @Column({ nullable: true })
     visitCost: number;
 
     @Column()
