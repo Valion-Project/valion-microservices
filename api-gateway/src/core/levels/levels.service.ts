@@ -8,11 +8,11 @@ import {UpdateLevelDto} from "./dto/update-level.dto";
 export class LevelsService {
 
   constructor(
-    @Inject('POINT_SERVICE') private readonly pointClient: ClientProxy
+    @Inject('ADMIN_SERVICE') private readonly adminClient: ClientProxy
   ) {}
 
   create(createLevelDto: CreateLevelDto) {
-    return this.pointClient.send('create_level', createLevelDto).pipe(
+    return this.adminClient.send('create_level', createLevelDto).pipe(
       catchError(err => {
         if (err.statusCode === 400) {
           throw new BadRequestException({
@@ -27,7 +27,7 @@ export class LevelsService {
   }
 
   findByCompanyId(companyId: number) {
-    return this.pointClient.send('find_levels_by_company_id', { companyId }).pipe(
+    return this.adminClient.send('find_levels_by_company_id', { companyId }).pipe(
       catchError(err => {
         if (err.statusCode === 404) {
           throw new NotFoundException({
@@ -42,7 +42,7 @@ export class LevelsService {
   }
 
   updateById(id: number, updateLevelDto: UpdateLevelDto) {
-    return this.pointClient.send('update_level_by_id', { id, updateLevelDto }).pipe(
+    return this.adminClient.send('update_level_by_id', { id, updateLevelDto }).pipe(
       catchError(err => {
         if (err.statusCode === 404) {
           throw new NotFoundException({

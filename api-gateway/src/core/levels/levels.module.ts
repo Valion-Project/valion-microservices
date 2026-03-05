@@ -11,11 +11,11 @@ import {ClientsModule, Transport} from "@nestjs/microservices";
     }),
     ClientsModule.register([
       {
-        name: 'POINT_SERVICE',
+        name: 'ADMIN_SERVICE',
         transport: Transport.TCP,
         options: {
-          host: process.env.POINT_SERVICE_HOST ?? 'localhost',
-          port: Number(process.env.PORT_POINT) ?? 3023,
+          host: process.env.ADMIN_SERVICE_HOST ?? 'localhost',
+          port: Number(process.env.PORT_ADMIN) ?? 3022,
         },
       },
     ]),
