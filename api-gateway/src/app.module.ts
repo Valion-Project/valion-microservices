@@ -14,9 +14,10 @@ import { CompanyProgramsModule } from './core/company-programs/company-programs.
 import { LevelsModule } from './core/levels/levels.module';
 import { RewardsModule } from './core/rewards/rewards.module';
 import { BranchesModule } from './core/branches/branches.module';
+import { RewardBranchesModule } from './core/reward-branches/reward-branches.module';
 
 @Module({
-  imports: [UsersModule, UserProfilesModule, PermissionsModule, SecurityEventsModule, LoyaltyProgramsModule, CompaniesModule, EventTypesModule, SecurityLogsModule, ClientsModule, CompanyProgramsModule, LevelsModule, RewardsModule, BranchesModule],
+  imports: [UsersModule, UserProfilesModule, PermissionsModule, SecurityEventsModule, LoyaltyProgramsModule, CompaniesModule, EventTypesModule, SecurityLogsModule, ClientsModule, CompanyProgramsModule, LevelsModule, RewardsModule, BranchesModule, RewardBranchesModule],
   controllers: [AppController],
   providers: [AppService],
 })

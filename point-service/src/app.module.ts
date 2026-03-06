@@ -8,6 +8,7 @@ import { ClientsModule } from './core/clients/clients.module';
 import { RewardsModule } from './core/rewards/rewards.module';
 import { EventTypesModule } from './core/event-types/event-types.module';
 import { EventsModule } from './core/events/events.module';
+import { RewardBranchesModule } from './core/reward-branches/reward-branches.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { EventsModule } from './core/events/events.module';
     RewardsModule,
     EventTypesModule,
     EventsModule,
+    RewardBranchesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
