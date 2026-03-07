@@ -15,9 +15,11 @@ import { LevelsModule } from './core/levels/levels.module';
 import { RewardsModule } from './core/rewards/rewards.module';
 import { BranchesModule } from './core/branches/branches.module';
 import { RewardBranchesModule } from './core/reward-branches/reward-branches.module';
+import { ProfilesModule } from './core/profiles/profiles.module';
+import { ProfilePermissionsModule } from './core/profile-permissions/profile-permissions.module';
 
 @Module({
-  imports: [UsersModule, UserProfilesModule, PermissionsModule, SecurityEventsModule, LoyaltyProgramsModule, CompaniesModule, EventTypesModule, SecurityLogsModule, ClientsModule, CompanyProgramsModule, LevelsModule, RewardsModule, BranchesModule, RewardBranchesModule],
+  imports: [UsersModule, UserProfilesModule, PermissionsModule, SecurityEventsModule, LoyaltyProgramsModule, CompaniesModule, EventTypesModule, SecurityLogsModule, ClientsModule, CompanyProgramsModule, LevelsModule, RewardsModule, BranchesModule, RewardBranchesModule, ProfilesModule, ProfilePermissionsModule],
   controllers: [AppController],
   providers: [AppService],
 })

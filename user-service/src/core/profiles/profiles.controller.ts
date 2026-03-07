@@ -28,10 +28,10 @@ export class ProfilesController {
     }
   }
 
-  @MessagePattern('find_all_profiles_by_company_id')
-  async findAllProfilesByCompanyId(data: { companyId: number }) {
+  @MessagePattern('find_profiles_by_company_id')
+  async findByCompanyId(data: { companyId: number }) {
     try {
-      return await this.profilesService.findAllByCompanyId(data.companyId);
+      return await this.profilesService.findByCompanyId(data.companyId);
     } catch (err) {
       throw new RpcException(err.response);
     }

@@ -1,18 +1,18 @@
-import {BadRequestException, Inject, Injectable, InternalServerErrorException, NotFoundException} from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { CreateProfileDto } from './dto/create-profile.dto';
+import { catchError } from 'rxjs/internal/operators/catchError';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import {ClientProxy} from "@nestjs/microservices";
-import {catchError} from "rxjs";
-import {CreateRewardDto} from "./dto/create-reward.dto";
-import {UpdateRewardDto} from "./dto/update-reward.dto";
 
 @Injectable()
-export class RewardsService {
+export class ProfilesService {
 
   constructor(
-    @Inject('POINT_SERVICE') private readonly pointClient: ClientProxy
+    @Inject('USER_SERVICE') private readonly userClient: ClientProxy
   ) {}
 
-  create(createRewardDto: CreateRewardDto) {
-    return this.pointClient.send('create_reward', createRewardDto).pipe(
+  create(createProfileDto: CreateProfileDto) {
+    return this.userClient.send('create_profile', createProfileDto).pipe(
       catchError(err => {
         if (err.statusCode === 400) {
           throw new BadRequestException({
@@ -25,9 +25,9 @@ export class RewardsService {
       })
     );
   }
-
+    
   findByCompanyId(companyId: number) {
-    return this.pointClient.send('find_rewards_by_company_id', { companyId }).pipe(
+    return this.userClient.send('find_profiles_by_company_id', { companyId }).pipe(
       catchError(err => {
         if (err.statusCode === 404) {
           throw new NotFoundException({
@@ -41,8 +41,8 @@ export class RewardsService {
     );
   }
 
-  updateById(id: number, updateRewardDto: UpdateRewardDto) {
-    return this.pointClient.send('update_reward_by_id', { id, updateRewardDto }).pipe(
+  updateById(id: number, updateProfileDto: UpdateProfileDto) {
+    return this.userClient.send('update_profile_by_id', { id, updateProfileDto }).pipe(
       catchError(err => {
         if (err.statusCode === 404) {
           throw new NotFoundException({

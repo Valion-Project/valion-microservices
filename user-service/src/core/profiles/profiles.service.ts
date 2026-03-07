@@ -135,7 +135,7 @@ export class ProfilesService {
     return { profile: savedProfileOnboarding.profile };
   }
 
-  async findAllByCompanyId(companyId: number) {
+  async findByCompanyId(companyId: number) {
     const profiles = await this.profileRepository.find({
       where: { companyId: companyId }
     });

@@ -13,8 +13,8 @@ import {ProfilePermissionsService} from "./profile-permissions.service";
 import {CreateProfilePermissionDto} from "./dto/create-profile-permission.dto";
 import {UpdateProfilePermissionDto} from "./dto/update-profile-permission.dto";
 
-@Controller('profile-permissions-dev')
-export class ProfilePermissionsDevController {
+@Controller('profile-permissions')
+export class ProfilePermissionsController {
 
   constructor(private profilePermissionsService: ProfilePermissionsService) {}
 

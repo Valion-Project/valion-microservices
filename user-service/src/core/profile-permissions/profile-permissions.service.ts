@@ -5,6 +5,7 @@ import {DataSource, Repository} from "typeorm";
 import {CreateProfilePermissionDto} from "./dto/create-profile-permission.dto";
 import {Profile, ProfileDomain} from "../profiles/entity/profiles.entity";
 import {Permission, PermissionDomain} from "../permissions/entity/permissions.entity";
+import {UpdateProfilePermissionDto} from "./dto/update-profile-permission.dto";
 
 @Injectable()
 export class ProfilePermissionsService {
@@ -33,10 +34,10 @@ export class ProfilePermissionsService {
       id: createProfilePermissionDto.profileId
     });
     if (!profile) {
-      throw new NotFoundException({
+      throw new BadRequestException({
         message: ['Perfil no encontrado.'],
-        error: 'Not Found',
-        statusCode: 404
+        error: "Bad Request",
+        statusCode: 400
       });
     }
 
@@ -44,10 +45,10 @@ export class ProfilePermissionsService {
       id: createProfilePermissionDto.permissionId
     });
     if (!permission) {
-      throw new NotFoundException({
+      throw new BadRequestException({
         message: ['Permiso no encontrado.'],
-        error: 'Not Found',
-        statusCode: 404
+        error: "Bad Request",
+        statusCode: 400
       });
     }
 
@@ -79,6 +80,7 @@ export class ProfilePermissionsService {
       }
 
       const newProfilePermission = profilePermissionRepository.create({
+        isAvailable: createProfilePermissionDto.isAvailable,
         profile: profile,
         permission: permission
       });
@@ -88,5 +90,65 @@ export class ProfilePermissionsService {
     });
 
     return { profilePermission: savedProfilePermission.profilePermission };
+  }
+
+  async findProfilePermissionAvailabilityInPermissions(profileId: number) {
+    const permissions = await this.permissionRepository.find();
+    const profile = await this.profileRepository.findOneBy({
+      id: profileId
+    });
+
+    const profilePermissions: ProfilePermission[] = [];
+
+    for (const permission of permissions) {
+      const profilePermission = await this.profilePermissionRepository.findOne({
+        where: { permission: { id: permission.id }, profile: { id: profileId } },
+        relations: ['profile', 'permission']
+      });
+      if (profilePermission) {
+        profilePermissions.push(profilePermission);
+      } else {
+        const profilePermission = {
+          profile: profile,
+          permission: permission
+        } as ProfilePermission;
+        profilePermissions.push(profilePermission);
+      }
+    }
+
+    return { profilePermissions };
+  }
+
+  async findById(id: number) {
+    const profilePermission = await this.profilePermissionRepository.findOne({
+      where: { id },
+      relations: ['profile', 'permission'],
+    });
+    if (!profilePermission) {
+      throw new NotFoundException({
+        message: ['Permiso en perfil no encontrado.'],
+        error: "Not Found",
+        statusCode: 404
+      });
+    }
+
+    return { profilePermission };
+  }
+
+  async updateById(id: number, updateProfilePermissionDto: UpdateProfilePermissionDto) {
+    const profilePermission = await this.profilePermissionRepository.findOneBy({
+      id
+    });
+    if (!profilePermission) {
+      throw new NotFoundException({
+        message: ['Permiso en perfil no encontrado.'],
+        error: "Not Found",
+        statusCode: 404
+      })
+    }
+
+    await this.profilePermissionRepository.update(id, updateProfilePermissionDto);
+
+    return this.findById(id);
   }
 }

@@ -1,4 +1,5 @@
 import {
+    Column,
     CreateDateColumn,
     DeleteDateColumn,
     Entity, ManyToOne,
@@ -12,6 +13,9 @@ import {Profile} from "../../profiles/entity/profiles.entity";
 export class ProfilePermission {
     @PrimaryGeneratedColumn()
     id: number;
+
+    @Column()
+    isAvailable: boolean;
 
     @ManyToOne(() => Profile, (profile) => profile.profilePermissions)
     profile: Profile;

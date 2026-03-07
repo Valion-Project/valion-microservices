@@ -1,18 +1,18 @@
 import {BadRequestException, Inject, Injectable, InternalServerErrorException, NotFoundException} from '@nestjs/common';
 import {ClientProxy} from "@nestjs/microservices";
 import {catchError} from "rxjs";
-import {CreateRewardDto} from "./dto/create-reward.dto";
-import {UpdateRewardDto} from "./dto/update-reward.dto";
+import {CreateProfilePermissionDto} from "./dto/create-profile-permission.dto";
+import {UpdateProfilePermissionDto} from "./dto/update-profile-permission.dto";
 
 @Injectable()
-export class RewardsService {
+export class ProfilePermissionsService {
 
   constructor(
-    @Inject('POINT_SERVICE') private readonly pointClient: ClientProxy
+    @Inject('USER_SERVICE') private readonly usersClient: ClientProxy
   ) {}
 
-  create(createRewardDto: CreateRewardDto) {
-    return this.pointClient.send('create_reward', createRewardDto).pipe(
+  create(createProfilePermissionDto: CreateProfilePermissionDto) {
+    return this.usersClient.send('create_profile_permission', createProfilePermissionDto).pipe(
       catchError(err => {
         if (err.statusCode === 400) {
           throw new BadRequestException({
@@ -26,8 +26,8 @@ export class RewardsService {
     );
   }
 
-  findByCompanyId(companyId: number) {
-    return this.pointClient.send('find_rewards_by_company_id', { companyId }).pipe(
+  findProfilePermissionAvailabilityInPermissions(profileId: number) {
+    return this.usersClient.send('find_profile_permission_availability_in_permissions', { profileId }).pipe(
       catchError(err => {
         if (err.statusCode === 404) {
           throw new NotFoundException({
@@ -38,11 +38,11 @@ export class RewardsService {
         }
         throw new InternalServerErrorException();
       })
-    );
+    )
   }
 
-  updateById(id: number, updateRewardDto: UpdateRewardDto) {
-    return this.pointClient.send('update_reward_by_id', { id, updateRewardDto }).pipe(
+  updateById(id: number, updateProfilePermissionDto: UpdateProfilePermissionDto) {
+    return this.usersClient.send('update_profile_permission_by_id', { id, updateProfilePermissionDto }).pipe(
       catchError(err => {
         if (err.statusCode === 404) {
           throw new NotFoundException({
@@ -53,6 +53,6 @@ export class RewardsService {
         }
         throw new InternalServerErrorException();
       })
-    );
+    )
   }
 }
