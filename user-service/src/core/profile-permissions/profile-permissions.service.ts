@@ -24,7 +24,7 @@ export class ProfilePermissionsService {
     });
     if (profilePermissionExisting) {
       throw new BadRequestException({
-        message: ['Permiso en perfil ya existente.'],
+        message: ['Permiso en pergfil ya existente.'],
         error: "Bad Request",
         statusCode: 400
       });

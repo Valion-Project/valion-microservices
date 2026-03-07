@@ -8,13 +8,15 @@ import {
 } from '@nestjs/common';
 import {InjectRepository} from "@nestjs/typeorm";
 import {UserProfile} from "./entity/user-profiles.entity";
-import {Repository} from "typeorm";
+import {DataSource, Repository} from "typeorm";
 import {User} from "../users/entity/users.entity";
 import {Profile} from "../profiles/entity/profiles.entity";
 import {ClientProxy} from "@nestjs/microservices";
 import {CreateUserProfileDto} from "./dto/create-user-profile.dto";
 import {catchError, firstValueFrom, of} from "rxjs";
 import {JwtService} from "@nestjs/jwt";
+import {CreateUserProfileAndUserDto} from "./dto/create-user-profile-and-user.dto";
+import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class UserProfilesService {
@@ -26,6 +28,7 @@ export class UserProfilesService {
     @Inject('ADMIN_SERVICE') private adminClient: ClientProxy,
     @Inject('POINT_SERVICE') private pointClient: ClientProxy,
     private jwtService: JwtService,
+    private dataSource: DataSource,
   ) {}
 
   async create(createUserProfileDto: CreateUserProfileDto) {
@@ -98,8 +101,69 @@ export class UserProfilesService {
     return { userProfile: savedUserProfile };
   }
 
-  async createUserAndUserProfile() {
+  async createUserProfileAndUser(createUserProfileAndUserDto: CreateUserProfileAndUserDto) {
+    const profile = await this.profileRepository.findOneBy({
+      id: createUserProfileAndUserDto.profileId
+    });
+    if (!profile) {
+      throw new BadRequestException({
+        message: ['Perfil no encontrado.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
 
+    const userExisting = await this.userRepository.findOneBy({
+      email: createUserProfileAndUserDto.user.email
+    });
+    if (userExisting) {
+      const userProfileExisting = await this.userProfileRepository.findOneBy({
+        user: { id: userExisting.id },
+        profile: { id: createUserProfileAndUserDto.profileId },
+      });
+      if (userProfileExisting) {
+        throw new BadRequestException({
+          message: ['Perfil en usuario ya existente.'],
+          error: "Bad Request",
+          statusCode: 400
+        });
+      }
+
+      const newUserProfile = this.userProfileRepository.create({
+        user: userExisting,
+        profile: profile,
+      });
+      const savedUserProfile = await this.userProfileRepository.save(newUserProfile);
+
+      return { userProfile: savedUserProfile };
+    } else {
+      const hashedPassword = await bcrypt.hash(createUserProfileAndUserDto.user.password, 10);
+
+      const savedUserProfile = await this.dataSource.transaction(async manager => {
+        const userRepository = manager.getRepository(User);
+        const userProfileRepository = manager.getRepository(UserProfile);
+
+        const newUser = userRepository.create({
+          name: createUserProfileAndUserDto.user.name,
+          lastName: createUserProfileAndUserDto.user.lastName,
+          email: createUserProfileAndUserDto.user.email,
+          password: hashedPassword,
+          tokenVersion: 1,
+          isSuperAdmin: false
+        });
+        const savedUser = await userRepository.save(newUser);
+
+        const newUserProfile = userProfileRepository.create({
+          user: savedUser,
+          profile: profile,
+        });
+        const savedUserProfile = await userProfileRepository.save(newUserProfile);
+
+        return { userProfile: savedUserProfile };
+      });
+
+      return { userProfile: savedUserProfile.userProfile };
+    }
   }
 
   async findContextOptions(userId: number) {

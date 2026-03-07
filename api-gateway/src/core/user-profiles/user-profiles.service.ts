@@ -2,6 +2,7 @@ import {BadRequestException, Inject, Injectable, InternalServerErrorException, N
 import {ClientProxy} from "@nestjs/microservices";
 import {catchError} from "rxjs";
 import { CreateUserProfileDto } from './dto/create-user-profile.dto';
+import {CreateUserProfileAndUserDto} from "./dto/create-user-profile-and-user.dto";
 
 @Injectable()
 export class UserProfilesService {
@@ -12,6 +13,21 @@ export class UserProfilesService {
 
   create(createUserProfileDto: CreateUserProfileDto) {
     return this.usersClient.send('create_user_profile', createUserProfileDto).pipe(
+      catchError(err => {
+        if (err.statusCode === 400) {
+          throw new BadRequestException({
+            message: err.message,
+            error: err.error,
+            statusCode: err.statusCode
+          });
+        }
+        throw new InternalServerErrorException();
+      })
+    );
+  }
+
+  createUserProfileAndUser(createUserProfileAndUserDto: CreateUserProfileAndUserDto) {
+    return this.usersClient.send('create_user_profile_and_user', createUserProfileAndUserDto).pipe(
       catchError(err => {
         if (err.statusCode === 400) {
           throw new BadRequestException({

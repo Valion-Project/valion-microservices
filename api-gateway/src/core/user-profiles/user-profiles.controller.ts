@@ -3,6 +3,7 @@ import {JwtAuthGuard} from "../../security/jwt-auth.guard";
 import {ApiBearerAuth} from "@nestjs/swagger";
 import {UserProfilesService} from "./user-profiles.service";
 import { CreateUserProfileDto } from './dto/create-user-profile.dto';
+import {CreateUserProfileAndUserDto} from "./dto/create-user-profile-and-user.dto";
 
 @Controller('user-profiles')
 export class UserProfilesController {
@@ -13,6 +14,12 @@ export class UserProfilesController {
   @UsePipes(new ValidationPipe({ whitelist: true }))
   create(@Body() createUserProfileDto: CreateUserProfileDto) {
     return this.userProfilesService.create(createUserProfileDto);
+  }
+
+  @Post('create-user-profile-and-user')
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  createUserProfileAndUser(@Body() createUserProfileAndUserDto: CreateUserProfileAndUserDto) {
+    return this.userProfilesService.createUserProfileAndUser(createUserProfileAndUserDto);
   }
 
   @Get('my-context-options')

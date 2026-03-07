@@ -2,6 +2,7 @@ import { Controller } from '@nestjs/common';
 import {MessagePattern, RpcException} from "@nestjs/microservices";
 import {UserProfilesService} from "./user-profiles.service";
 import {CreateUserProfileDto} from "./dto/create-user-profile.dto";
+import {CreateUserProfileAndUserDto} from "./dto/create-user-profile-and-user.dto";
 
 @Controller('user-profiles')
 export class UserProfilesController {
@@ -12,6 +13,15 @@ export class UserProfilesController {
   async createUserProfile(data: CreateUserProfileDto) {
     try {
       return await this.userProfilesService.create(data);
+    } catch (err) {
+      throw new RpcException(err.response);
+    }
+  }
+
+  @MessagePattern('create_user_profile_and_user')
+  async CreateUserProfileAndUser(data: CreateUserProfileAndUserDto) {
+    try {
+      return await this.userProfilesService.createUserProfileAndUser(data);
     } catch (err) {
       throw new RpcException(err.response);
     }
