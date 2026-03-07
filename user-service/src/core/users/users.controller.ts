@@ -46,6 +46,15 @@ export class UsersController {
     }
   }
 
+  @MessagePattern('find_users_by_company_id')
+  async findByCompanyId(data: { companyId: number }) {
+    try {
+      return await this.usersService.findByCompanyId(data.companyId);
+    } catch (err) {
+      throw new RpcException(err.response);
+    }
+  }
+
   @MessagePattern('update_user_by_id')
   async updateUserById(data: { id: number, updateUserDto: UpdateUserDto }) {
     try {

@@ -17,7 +17,7 @@ export class UserProfile {
     @Column({ nullable: true })
     branchId: number;
 
-    @ManyToOne(() => User)
+    @ManyToOne(() => User, (user) => user.userProfiles)
     user: User;
 
     @ManyToOne(() => Profile)

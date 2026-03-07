@@ -53,6 +53,11 @@ export class UsersController {
     return this.usersService.findById(req.user.id);
   }
 
+  @Get('company/:companyId')
+  getByCompanyId(@Param('companyId', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) companyId: number) {
+    return this.usersService.findByCompanyId(companyId);
+  }
+
   @Put(':id')
   @UsePipes(new ValidationPipe({ whitelist: true }))
   updateById(@Param('id', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) id: number, @Body() updateUserDto: UpdateUserDto) {

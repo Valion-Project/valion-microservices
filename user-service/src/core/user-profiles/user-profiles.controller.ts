@@ -43,4 +43,13 @@ export class UserProfilesController {
       throw new RpcException(err.response);
     }
   }
+
+  @MessagePattern('find_user_profile_availability_in_profiles')
+  async findUserProfileAvailabilityInProfiles(data: { companyId: number, userId: number }) {
+    try {
+      return await this.userProfilesService.findUserProfileAvailabilityInProfiles(data.companyId, data.userId);
+    } catch (err) {
+      throw new RpcException(err.response);
+    }
+  }
 }

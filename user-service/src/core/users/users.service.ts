@@ -247,6 +247,22 @@ export class UsersService {
     return { user };
   }
 
+  async findByCompanyId(companyId: number) {
+    const users = await this.userRepository.find({
+      where: { userProfiles: { profile: { companyId: companyId } } },
+      relations: ['userProfiles', 'userProfiles.profile']
+    });
+    if (users.length === 0) {
+      throw new NotFoundException({
+        message: ['Usuarios no encontrados.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    return { users };
+  }
+
   async updateById(id: number, updateUserDto: UpdateUserDto) {
     const user = await this.userRepository.findOneBy({
       id

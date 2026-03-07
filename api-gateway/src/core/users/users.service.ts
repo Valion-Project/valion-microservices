@@ -103,6 +103,21 @@ export class UsersService {
     );
   }
 
+  findByCompanyId(companyId: number) {
+    return this.usersClient.send('find_users_by_company_id', { companyId }).pipe(
+      catchError(err => {
+        if (err.statusCode === 404) {
+          throw new NotFoundException({
+            message: err.message,
+            error: err.error,
+            statusCode: err.statusCode
+          });
+        }
+        throw new InternalServerErrorException();
+      })
+    )
+  }
+
   findByIdToValidateToken(id: number) {
     return this.usersClient.send('find_user_by_id_to_validate_token', { id }).pipe(
       catchError(err => {

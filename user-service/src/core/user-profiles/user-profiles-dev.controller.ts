@@ -45,4 +45,9 @@ export class UserProfilesDevController {
   validateProfileToken(@Request() req: any) {
     return this.userProfilesService.validateProfileToken(req.user.id, req.user.type, req.user.userProfileId);
   }
+
+  @Get('availability/:companyId/profiles/:userId')
+  getUserProfileAvailabilityInProfiles(@Param('companyId', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) companyId: number, @Param('userId', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) userId: number) {
+    return this.userProfilesService.findUserProfileAvailabilityInProfiles(companyId, userId);
+  }
 }

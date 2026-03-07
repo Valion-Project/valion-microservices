@@ -75,4 +75,19 @@ export class UserProfilesService {
       })
     );
   }
+
+  findUserProfileAvailabilityInProfiles(companyId: number, userId: number) {
+    return this.usersClient.send('find_user_profile_availability_in_profiles', { companyId, userId }).pipe(
+      catchError(err => {
+        if (err.statusCode === 404) {
+          throw new NotFoundException({
+            message: err.message,
+            error: err.error,
+            statusCode: err.statusCode
+          });
+        }
+        throw new InternalServerErrorException();
+      })
+    )
+  }
 }

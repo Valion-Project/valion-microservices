@@ -98,6 +98,10 @@ export class UserProfilesService {
     return { userProfile: savedUserProfile };
   }
 
+  async createUserAndUserProfile() {
+
+  }
+
   async findContextOptions(userId: number) {
     const user = await this.userRepository.findOneBy({
       id: userId
@@ -279,5 +283,34 @@ export class UserProfilesService {
       success: true,
       type
     }
+  }
+
+  async findUserProfileAvailabilityInProfiles(companyId: number, userId: number) {
+    const profiles = await this.profileRepository.findBy({
+      companyId
+    });
+    const user = await this.userRepository.findOneBy({
+      id: userId
+    });
+
+    const userProfiles: UserProfile[] = [];
+
+    for (const profile of profiles) {
+      const userProfile = await this.userProfileRepository.findOne({
+        where: { user: { id: userId }, profile: { id: profile.id } },
+        relations: ['profile', 'user']
+      });
+      if (userProfile) {
+        userProfiles.push(userProfile);
+      } else {
+        const userProfile = {
+          user: user,
+          profile: profile
+        } as UserProfile;
+        userProfiles.push(userProfile);
+      }
+    }
+
+    return { userProfiles };
   }
 }
