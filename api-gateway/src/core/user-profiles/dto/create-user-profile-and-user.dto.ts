@@ -1,4 +1,4 @@
-import {IsNotEmpty, IsNumber, ValidateNested} from 'class-validator';
+import {IsNotEmpty, IsNumber, IsOptional, ValidateNested} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import {Type} from "class-transformer";
 import {CreatePlainUserDto} from "./create-plain-user.dto";
@@ -15,4 +15,11 @@ export class CreateUserProfileAndUserDto {
   @Type(() => Number)
   @ApiProperty({ example: 1 })
   profileId: number;
+
+  @IsOptional()
+  @IsNotEmpty({ message: 'El ID de la sucursal es obligatorio.' })
+  @IsNumber({}, { message: 'El ID de la sucursal debe ser un número.' })
+  @Type(() => Number)
+  @ApiProperty({ example: 1 })
+  branchId: number;
 }

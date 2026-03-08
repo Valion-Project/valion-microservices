@@ -5,7 +5,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
-  Post, Request, UseGuards,
+  Post, Put, Request, UseGuards,
   UsePipes,
   ValidationPipe
 } from '@nestjs/common';
@@ -14,6 +14,7 @@ import {CreateUserProfileDto} from "./dto/create-user-profile.dto";
 import {JwtAuthGuard} from "../../security/jwt-auth.guard";
 import {ApiBearerAuth} from "@nestjs/swagger";
 import {CreateUserProfileAndUserDto} from "./dto/create-user-profile-and-user.dto";
+import {UpdateUserProfileDto} from "./dto/update-user-profile.dto";
 
 @Controller('user-profiles-dev')
 export class UserProfilesDevController {
@@ -56,5 +57,11 @@ export class UserProfilesDevController {
   @Get('availability/:companyId/profiles/:userId')
   getUserProfileAvailabilityInProfiles(@Param('companyId', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) companyId: number, @Param('userId', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) userId: number) {
     return this.userProfilesService.findUserProfileAvailabilityInProfiles(companyId, userId);
+  }
+
+  @Put(':id')
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  updateById(@Param('id', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) id: number, @Body() updateUserProfileDto: UpdateUserProfileDto) {
+    return this.userProfilesService.updateById(id, updateUserProfileDto);
   }
 }

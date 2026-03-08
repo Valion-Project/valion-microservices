@@ -24,14 +24,15 @@ export class ProfilePermissionsService {
     });
     if (profilePermissionExisting) {
       throw new BadRequestException({
-        message: ['Permiso en pergfil ya existente.'],
+        message: ['Permiso en perfil ya existente.'],
         error: "Bad Request",
         statusCode: 400
       });
     }
 
-    const profile = await this.profileRepository.findOneBy({
-      id: createProfilePermissionDto.profileId
+    const profile = await this.profileRepository.findOne({
+      where: { id: createProfilePermissionDto.profileId },
+      relations: ['profilePermissions', 'profilePermissions.permission']
     });
     if (!profile) {
       throw new BadRequestException({
@@ -64,6 +65,24 @@ export class ProfilePermissionsService {
       if (permission.domain === PermissionDomain.OPERATOR) {
         throw new BadRequestException({
           message: ['No se pueden agregar permisos OPERATOR a un perfil de dominio ADMIN.'],
+          error: "Bad Request",
+          statusCode: 400
+        });
+      }
+
+      const existingPermissionDomains = profile.profilePermissions.map(pp => pp.permission.domain);
+      const hasAdminPermissions = existingPermissionDomains.includes(PermissionDomain.ADMIN);
+      const hasBranchPermissions = existingPermissionDomains.includes(PermissionDomain.BRANCH);
+
+      if (permission.domain === PermissionDomain.BRANCH && hasAdminPermissions) {
+          throw new BadRequestException({
+            message: ['No se pueden agregar permisos BRANCH a un perfil que solo contiene permisos ADMIN.'],
+            error: "Bad Request",
+            statusCode: 400
+          });
+      } else if (permission.domain === PermissionDomain.ADMIN && hasBranchPermissions) {
+        throw new BadRequestException({
+          message: ['No se pueden agregar permisos ADMIN a un perfil que contiene permisos BRANCH.'],
           error: "Bad Request",
           statusCode: 400
         });

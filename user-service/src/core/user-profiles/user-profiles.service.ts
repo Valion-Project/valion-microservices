@@ -10,13 +10,15 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {UserProfile} from "./entity/user-profiles.entity";
 import {DataSource, Repository} from "typeorm";
 import {User} from "../users/entity/users.entity";
-import {Profile} from "../profiles/entity/profiles.entity";
+import {Profile, ProfileDomain} from "../profiles/entity/profiles.entity";
 import {ClientProxy} from "@nestjs/microservices";
 import {CreateUserProfileDto} from "./dto/create-user-profile.dto";
 import {catchError, firstValueFrom, of} from "rxjs";
 import {JwtService} from "@nestjs/jwt";
 import {CreateUserProfileAndUserDto} from "./dto/create-user-profile-and-user.dto";
 import * as bcrypt from "bcrypt";
+import {PermissionDomain} from "../permissions/entity/permissions.entity";
+import {UpdateUserProfileDto} from "./dto/update-user-profile.dto";
 
 @Injectable()
 export class UserProfilesService {
@@ -50,23 +52,24 @@ export class UserProfilesService {
     if (!user) {
       throw new BadRequestException({
         message: ['Usuario no encontrado.'],
-        error: 'Not Found',
-        statusCode: 404
+        error: "Bad Request",
+        statusCode: 400
       });
     }
 
-    const profile = await this.profileRepository.findOneBy({
-      id: createUserProfileDto.profileId
+    const profile = await this.profileRepository.findOne({
+      where: { id: createUserProfileDto.profileId },
+      relations: ['profilePermissions', 'profilePermissions.permission']
     });
     if (!profile) {
       throw new BadRequestException({
         message: ['Perfil no encontrado.'],
-        error: 'Not Found',
-        statusCode: 404
+        error: "Bad Request",
+        statusCode: 400
       });
     }
 
-    if (createUserProfileDto.branchId != null) {
+    if (createUserProfileDto.branchId !== null && createUserProfileDto.branchId !== 0) {
       const branchResponse = await firstValueFrom(
         this.adminClient.send('find_branch_by_id', { id: createUserProfileDto.branchId }).pipe(
           catchError(err => {
@@ -91,10 +94,43 @@ export class UserProfilesService {
       }
     }
 
+    if (profile.domain == null) {
+      throw new BadRequestException({
+        message: ['El perfil seleccionado debe tener permisos asignados.'],
+        error: 'Bad Request',
+        statusCode: 400
+      });
+    } else if (profile.domain === ProfileDomain.OPERATOR) {
+      if (createUserProfileDto.branchId == null || createUserProfileDto.branchId === 0) {
+        throw new BadRequestException({
+          message: ['Debe seleccionarse una sucursal.'],
+          error: "Bad Request",
+          statusCode: 400
+        });
+      }
+    } else {
+      const existingPermissionDomains = profile.profilePermissions.map(pp => pp.permission.domain);
+      const hasAdminPermissions = existingPermissionDomains.includes(PermissionDomain.ADMIN);
+      const hasBranchPermissions = existingPermissionDomains.includes(PermissionDomain.BRANCH);
+      if (hasBranchPermissions && (createUserProfileDto.branchId == null || createUserProfileDto.branchId === 0)) {
+        throw new BadRequestException({
+          message: ['Debe seleccionarse una sucursal.'],
+          error: "Bad Request",
+          statusCode: 400
+        });
+      } else if (hasAdminPermissions && createUserProfileDto.branchId !== null && createUserProfileDto.branchId !== 0) {
+        throw new BadRequestException({
+          message: ['El perfil seleccionado no permite seleccionar una sucursal.'],
+          error: "Bad Request",
+          statusCode: 400
+        });
+      }
+    }
+
     const newUserProfile = this.userProfileRepository.create({
       user: user,
       profile: profile,
-      ...(createUserProfileDto.branchId != null ? { branchId: createUserProfileDto.branchId } : {})
+      ...(createUserProfileDto.branchId != null && createUserProfileDto.branchId !== 0 ? { branchId: createUserProfileDto.branchId } : {})
     });
     const savedUserProfile = await this.userProfileRepository.save(newUserProfile);
 
@@ -102,15 +138,74 @@ export class UserProfilesService {
   }
 
   async createUserProfileAndUser(createUserProfileAndUserDto: CreateUserProfileAndUserDto) {
-    const profile = await this.profileRepository.findOneBy({
-      id: createUserProfileAndUserDto.profileId
+    const profile = await this.profileRepository.findOne({
+      where: { id: createUserProfileAndUserDto.profileId },
+      relations: ['profilePermissions', 'profilePermissions.permission']
     });
     if (!profile) {
       throw new BadRequestException({
         message: ['Perfil no encontrado.'],
-        error: 'Not Found',
-        statusCode: 404
+        error: "Bad Request",
+        statusCode: 400
       });
+    }
+
+    if (createUserProfileAndUserDto.branchId !== null && createUserProfileAndUserDto.branchId !== 0) {
+      const branchResponse = await firstValueFrom(
+        this.adminClient.send('find_branch_by_id', { id: createUserProfileAndUserDto.branchId }).pipe(
+          catchError(err => {
+            if (err.statusCode === 404) {
+              throw new BadRequestException({
+                message: ['Sucursal no encontrada.'],
+                error: 'Bad Request',
+                statusCode: 400
+              });
+            }
+            throw new InternalServerErrorException();
+          })
+        )
+      );
+
+      if (branchResponse.branch.company.id !== profile.companyId) {
+        throw new BadRequestException({
+          message: ['Sucursal incorrecta para el perfil seleccionado.'],
+          error: 'Bad Request',
+          statusCode: 400
+        })
+      }
+    }
+
+    if (profile.domain == null) {
+      throw new BadRequestException({
+        message: ['El perfil seleccionado debe tener permisos asignados.'],
+        error: 'Bad Request',
+        statusCode: 400
+      });
+    } else if (profile.domain === ProfileDomain.OPERATOR) {
+      if (createUserProfileAndUserDto.branchId == null || createUserProfileAndUserDto.branchId === 0) {
+        throw new BadRequestException({
+          message: ['Debe seleccionarse una sucursal.'],
+          error: "Bad Request",
+          statusCode: 400
+        });
+      }
+    } else {
+      const existingPermissionDomains = profile.profilePermissions.map(pp => pp.permission.domain);
+      const hasAdminPermissions = existingPermissionDomains.includes(PermissionDomain.ADMIN);
+      const hasBranchPermissions = existingPermissionDomains.includes(PermissionDomain.BRANCH);
+      if (hasBranchPermissions && (createUserProfileAndUserDto.branchId == null || createUserProfileAndUserDto.branchId === 0)) {
+        throw new BadRequestException({
+          message: ['Debe seleccionarse una sucursal.'],
+          error: "Bad Request",
+          statusCode: 400
+        });
+      } else if (hasAdminPermissions && createUserProfileAndUserDto.branchId !== null && createUserProfileAndUserDto.branchId !== 0) {
+        throw new BadRequestException({
+          message: ['El perfil seleccionado no permite seleccionar una sucursal.'],
+          error: "Bad Request",
+          statusCode: 400
+        })
+      }
     }
 
     const userExisting = await this.userRepository.findOneBy({
@@ -132,6 +227,7 @@ export class UserProfilesService {
       const newUserProfile = this.userProfileRepository.create({
         user: userExisting,
         profile: profile,
+        ...(createUserProfileAndUserDto.branchId != null && createUserProfileAndUserDto.branchId !== 0 ? { branchId: createUserProfileAndUserDto.branchId } : {})
       });
       const savedUserProfile = await this.userProfileRepository.save(newUserProfile);
 
@@ -156,6 +252,7 @@ export class UserProfilesService {
         const newUserProfile = userProfileRepository.create({
           user: savedUser,
           profile: profile,
+          ...(createUserProfileAndUserDto.branchId != null && createUserProfileAndUserDto.branchId !== 0 ? { branchId: createUserProfileAndUserDto.branchId } : {})
         });
         const savedUserProfile = await userProfileRepository.save(newUserProfile);
 
@@ -350,8 +447,9 @@ export class UserProfilesService {
   }
 
   async findUserProfileAvailabilityInProfiles(companyId: number, userId: number) {
-    const profiles = await this.profileRepository.findBy({
-      companyId
+    const profiles = await this.profileRepository.find({
+      where: { companyId },
+      relations: ['profilePermissions', 'profilePermissions.permission']
     });
     const user = await this.userRepository.findOneBy({
       id: userId
@@ -362,7 +460,7 @@ export class UserProfilesService {
     for (const profile of profiles) {
       const userProfile = await this.userProfileRepository.findOne({
         where: { user: { id: userId }, profile: { id: profile.id } },
-        relations: ['profile', 'user']
+        relations: ['profile', 'profile.profilePermissions', 'profile.profilePermissions.permission', 'user']
       });
       if (userProfile) {
         userProfiles.push(userProfile);
@@ -376,5 +474,62 @@ export class UserProfilesService {
     }
 
     return { userProfiles };
+  }
+
+  async findById(id: number) {
+    const userProfile = await this.userProfileRepository.findOne({
+      where: { id },
+      relations: ['profile', 'profile.profilePermissions', 'profile.profilePermissions.permission', 'user']
+    });
+    if (!userProfile) {
+      throw new NotFoundException({
+        message: ['Perfil de usuario no encontrado.'],
+        error: 'Not Found',
+        statusCode: 404
+      })
+    }
+
+    return { userProfile };
+  }
+
+  async updateById(id: number, updateUserProfileDto: UpdateUserProfileDto) {
+    const userProfile = await this.userProfileRepository.findOne({
+      where: { id },
+      relations: ['profile']
+    });
+    if (!userProfile) {
+      throw new NotFoundException({
+        message: ['Perfil de usuario no encontrado.'],
+        error: 'Not Found',
+        statusCode: 404
+      })
+    }
+
+    const branchResponse = await firstValueFrom(
+      this.adminClient.send('find_branch_by_id', { id: updateUserProfileDto.branchId }).pipe(
+        catchError(err => {
+          if (err.statusCode === 404) {
+            throw new BadRequestException({
+              message: ['Sucursal no encontrada.'],
+              error: 'Bad Request',
+              statusCode: 400
+            });
+          }
+          throw new InternalServerErrorException();
+        })
+      )
+    );
+
+    if (branchResponse.branch.company.id !== userProfile.profile.companyId) {
+      throw new BadRequestException({
+        message: ['Sucursal incorrecta para el perfil seleccionado.'],
+        error: 'Bad Request',
+        statusCode: 400
+      })
+    }
+
+    await this.userProfileRepository.update(id, updateUserProfileDto);
+
+    return this.findById(id);
   }
 }

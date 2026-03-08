@@ -137,7 +137,8 @@ export class ProfilesService {
 
   async findByCompanyId(companyId: number) {
     const profiles = await this.profileRepository.find({
-      where: { companyId: companyId }
+      where: { companyId: companyId },
+      relations: ['profilePermissions', 'profilePermissions.permission']
     });
     if (profiles.length === 0) {
       throw new NotFoundException({

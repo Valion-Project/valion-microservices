@@ -3,6 +3,7 @@ import {MessagePattern, RpcException} from "@nestjs/microservices";
 import {UserProfilesService} from "./user-profiles.service";
 import {CreateUserProfileDto} from "./dto/create-user-profile.dto";
 import {CreateUserProfileAndUserDto} from "./dto/create-user-profile-and-user.dto";
+import {UpdateUserProfileDto} from "./dto/update-user-profile.dto";
 
 @Controller('user-profiles')
 export class UserProfilesController {
@@ -58,6 +59,15 @@ export class UserProfilesController {
   async findUserProfileAvailabilityInProfiles(data: { companyId: number, userId: number }) {
     try {
       return await this.userProfilesService.findUserProfileAvailabilityInProfiles(data.companyId, data.userId);
+    } catch (err) {
+      throw new RpcException(err.response);
+    }
+  }
+
+  @MessagePattern('update_user_profile_by_id')
+  async updateRewardBranchById(data: { id: number, updateUserProfileDto: UpdateUserProfileDto }) {
+    try {
+      return await this.userProfilesService.updateById(data.id, data.updateUserProfileDto);
     } catch (err) {
       throw new RpcException(err.response);
     }
