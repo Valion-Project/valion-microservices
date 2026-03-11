@@ -43,7 +43,7 @@ jobs:
                         cd htdocs/valion-microservices/user-service/
                         git pull
                         npm run build
-                        pm2 restart valion-user
+                        /opt/bitnami/node/bin/pm2 restart valion-user
 
             -   name: Notificación en Discord
                 if: success()
@@ -77,7 +77,7 @@ jobs:
                         cd htdocs/valion-microservices/admin-service/
                         git pull
                         npm run build
-                        pm2 restart valion-admin
+                        /opt/bitnami/node/bin/pm2 restart valion-admin
 
             -   name: Notificación en Discord
                 if: success()
@@ -111,7 +111,7 @@ jobs:
                         cd htdocs/valion-microservices/point-service/
                         git pull
                         npm run build
-                        pm2 restart valion-point
+                        /opt/bitnami/node/bin/pm2 restart valion-point
 
             -   name: Notificación en Discord
                 if: success()
