@@ -143,4 +143,19 @@ export class UsersService {
       })
     )
   }
+
+  generateTokenFromProfileToken(id: number) {
+    return this.usersClient.send('generate_token_from_profile_token', { id }).pipe(
+      catchError(err => {
+        if (err.statusCode === 404) {
+          throw new NotFoundException({
+            message: err.message,
+            error: err.error,
+            statusCode: err.statusCode
+          });
+        }
+        throw new InternalServerErrorException();
+      })
+    );
+  }
 }
