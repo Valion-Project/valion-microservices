@@ -144,7 +144,7 @@ jobs:
                         set -e
                         cd htdocs/valion-microservices/api-gateway/
                         git pull
-                        /opt/bitnami/node/bin/node /opt/bitnami/node/bin/npm run build
+                        npm run build
                         pm2 restart valion-api
 
             -   name: Notificación en Discord
