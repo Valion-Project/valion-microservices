@@ -144,6 +144,8 @@ jobs:
                         set -e
                         cd htdocs/valion-microservices/api-gateway/
                         git pull
+                        pwd
+                        whoami
                         npm run build
                         pm2 restart valion-api
 
