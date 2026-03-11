@@ -1,0 +1,164 @@
+name: Despliegue Continuo
+
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+    detectar-cambios:
+        runs-on: ubuntu-latest
+        outputs:
+            user: ${{ steps.filter.outputs.user }}
+            admin: ${{ steps.filter.outputs.admin }}
+            point: ${{ steps.filter.outputs.point }}
+            api: ${{ steps.filter.outputs.api }}
+        steps:
+            -   name: Clonar el repositorio
+                uses: actions/checkout@v3
+
+            -   name: Detectar cambios en microservicios
+                id: filter
+                uses: dorny/paths-filter@v2
+                with:
+                    filters: |
+                        user: 'user-service/**'
+                        admin: 'admin-service/**'
+                        point: 'point-service/**'
+                        api: 'api-gateway/**'
+
+    deploy-user:
+        needs: detectar-cambios
+        if: needs.detectar-cambios.outputs.user == 'true'
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Conexión SSH al servidor EC2
+                uses: appleboy/ssh-action@v1.0.0
+                with:
+                    key: ${{ secrets.LIGHTSAIL_SSH_KEY  }}
+                    username: ${{ secrets.LIGHTSAIL_USER  }}
+                    host: ${{ secrets.LIGHTSAIL_HOST  }}
+                    script: |
+                        set -e
+                        cd htdocs/valion-microservices/user-service/
+                        git pull
+                        npm run build
+                        pm2 restart valion-user
+
+            -   name: Notificación en Discord
+                if: success()
+                env:
+                    DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+                uses: Ilshidur/action-discord@master
+                with:
+                    args: "Despliegue exitoso en *valion-user*"
+
+            -   name: Notificación en Discord (fallo)
+                if: failure()
+                env:
+                    DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+                uses: Ilshidur/action-discord@master
+                with:
+                    args: 'El despliegue en *valion-user* ha fallado'
+
+    deploy-admin:
+        needs: detectar-cambios
+        if: needs.detectar-cambios.outputs.admin == 'true'
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Conexión SSH al servidor EC2
+                uses: appleboy/ssh-action@v1.0.0
+                with:
+                    key: ${{ secrets.LIGHTSAIL_SSH_KEY  }}
+                    username: ${{ secrets.LIGHTSAIL_USER  }}
+                    host: ${{ secrets.LIGHTSAIL_HOST  }}
+                    script: |
+                        set -e
+                        cd htdocs/valion-microservices/admin-service/
+                        git pull
+                        npm run build
+                        pm2 restart valion-admin
+
+            -   name: Notificación en Discord
+                if: success()
+                env:
+                    DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+                uses: Ilshidur/action-discord@master
+                with:
+                    args: "Despliegue exitoso en *valion-admin*"
+
+            -   name: Notificación en Discord (fallo)
+                if: failure()
+                env:
+                    DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+                uses: Ilshidur/action-discord@master
+                with:
+                    args: 'El despliegue en *valion-admin* ha fallado'
+
+    deploy-point:
+        needs: detectar-cambios
+        if: needs.detectar-cambios.outputs.point == 'true'
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Conexión SSH al servidor EC2
+                uses: appleboy/ssh-action@v1.0.0
+                with:
+                    key: ${{ secrets.LIGHTSAIL_SSH_KEY  }}
+                    username: ${{ secrets.LIGHTSAIL_USER  }}
+                    host: ${{ secrets.LIGHTSAIL_HOST  }}
+                    script: |
+                        set -e
+                        cd htdocs/valion-microservices/point-service/
+                        git pull
+                        npm run build
+                        pm2 restart valion-point
+
+            -   name: Notificación en Discord
+                if: success()
+                env:
+                    DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+                uses: Ilshidur/action-discord@master
+                with:
+                    args: "Despliegue exitoso en *valion-point*"
+
+            -   name: Notificación en Discord (fallo)
+                if: failure()
+                env:
+                    DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+                uses: Ilshidur/action-discord@master
+                with:
+                    args: 'El despliegue en *valion-point* ha fallado'
+
+    deploy-api:
+        needs: detectar-cambios
+        if: needs.detectar-cambios.outputs.api == 'true'
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Conexión SSH al servidor EC2
+                uses: appleboy/ssh-action@v1.0.0
+                with:
+                    key: ${{ secrets.LIGHTSAIL_SSH_KEY  }}
+                    username: ${{ secrets.LIGHTSAIL_USER  }}
+                    host: ${{ secrets.LIGHTSAIL_HOST  }}
+                    script: |
+                        set -e
+                        cd htdocs/valion-microservices/api-gateway/
+                        git pull
+                        npm run build
+                        pm2 restart valion-api
+
+            -   name: Notificación en Discord
+                if: success()
+                env:
+                    DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+                uses: Ilshidur/action-discord@master
+                with:
+                    args: "Despliegue exitoso en *valion-api*"
+
+            -   name: Notificación en Discord (fallo)
+                if: failure()
+                env:
+                    DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+                uses: Ilshidur/action-discord@master
+                with:
+                    args: 'El despliegue en *valion-api* ha fallado'
