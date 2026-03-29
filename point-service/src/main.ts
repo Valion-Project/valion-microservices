@@ -4,6 +4,7 @@ import {DocumentBuilder, SwaggerModule} from "@nestjs/swagger";
 import {Transport} from "@nestjs/microservices";
 
 async function bootstrap() {
+  console.log('USER:', process.env.DATABASE_USER);
   const app = await NestFactory.create(AppModule);
 
   const builder = new DocumentBuilder()
