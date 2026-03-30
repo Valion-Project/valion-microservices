@@ -1,4 +1,4 @@
-import {BadRequestException, Inject, Injectable, InternalServerErrorException, NotFoundException} from '@nestjs/common';
+import {Inject, Injectable, InternalServerErrorException, NotFoundException} from '@nestjs/common';
 import {ClientProxy} from "@nestjs/microservices";
 import {catchError} from "rxjs";
 
@@ -8,7 +8,6 @@ export class CardsService {
   constructor(
     @Inject('POINT_SERVICE') private readonly pointClient: ClientProxy
   ) {}
-
 
   findByClientId(clientId: number) {
     return this.pointClient.send('find_cards_by_client_id', { clientId }).pipe(

@@ -3,7 +3,6 @@ import { CardsController } from './cards.controller';
 import { CardsService } from './cards.service';
 import { CardsDevController } from './cards-dev.controller';
 import { Card } from './entity/cards.entity';
-import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({

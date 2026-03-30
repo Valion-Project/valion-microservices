@@ -14,7 +14,7 @@ import {ClientsModule as ClientMicroserviceModule, Transport} from "@nestjs/micr
         name: 'POINT_SERVICE',
         transport: Transport.TCP,
         options: {
-          host: 'localhost',
+          host: process.env.POINT_SERVICE_HOST ?? 'localhost',
           port: Number(process.env.PORT_POINT) ?? 3023,
         },
       },
