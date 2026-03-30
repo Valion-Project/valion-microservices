@@ -23,7 +23,7 @@ export class MailService {
       '<p>Saludos desde el equipo de seguridad de Valion.</p>';
 
     const { error } = await this.resend.emails.send({
-      from: 'forget-password-valion@socialsinergy.store',
+      from: 'forget-password-valion@aurumtech.cloud',
       to: to,
       subject: 'Restauración de contraseña',
       html: html,
@@ -57,7 +57,7 @@ export class MailService {
       '<p>Saludos desde el equipo de seguridad de Valion.</p>';
 
     const { error } = await this.resend.emails.send({
-      from: 'account-verification-valion@socialsinergy.store',
+      from: 'account-verification-valion@aurumtech.cloud',
       to: to,
       subject: 'Verificación de cuenta',
       html: html,
