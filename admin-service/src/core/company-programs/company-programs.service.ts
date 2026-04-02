@@ -1,4 +1,4 @@
-import {BadRequestException, Injectable} from '@nestjs/common';
+import {BadRequestException, Injectable, NotFoundException} from '@nestjs/common';
 import {InjectRepository} from "@nestjs/typeorm";
 import {CompanyProgram} from "./entity/company-programs.entity";
 import {Repository} from "typeorm";
@@ -57,6 +57,22 @@ export class CompanyProgramsService {
     const savedCompanyProgram = await this.companyProgramRepository.save(newCompanyProgram);
 
     return { companyProgram: savedCompanyProgram };
+  }
+
+  async findById(id: number) {
+    const companyProgram = await this.companyProgramRepository.findOne({
+      where: { id },
+      relations: ['company', 'loyaltyProgram']
+    });
+    if (!companyProgram) {
+      throw new NotFoundException({
+        message: ['Empresa no encontrada.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    return { companyProgram };
   }
 
   async findCompanyProgramAvailabilityInLoyaltyPrograms(companyId: number) {

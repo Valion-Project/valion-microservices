@@ -17,6 +17,15 @@ export class CompanyProgramsController {
     }
   }
 
+  @MessagePattern('find_company_program_by_id')
+  async findById(data: { id: number }) {
+    try {
+      return await this.companyProgramsService.findById(data.id);
+    } catch (err) {
+      throw new RpcException(err.response);
+    }
+  }
+
   @MessagePattern('find_company_program_availability_in_loyalty_programs')
   async findCompanyProgramAvailabilityInLoyaltyPrograms(data: { companyId: number }) {
     try {

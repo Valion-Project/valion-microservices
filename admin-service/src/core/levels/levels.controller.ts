@@ -27,6 +27,15 @@ export class LevelsController {
     }
   }
 
+  @MessagePattern('find_level_by_id')
+  async findById(data: { id: number }) {
+    try {
+      return await this.levelsService.findById(data.id);
+    } catch (err) {
+      throw new RpcException(err.response);
+    }
+  }
+
   @MessagePattern('update_level_by_id')
   async updateLevelById(data: { id: number, updateLevelDto: UpdateLevelDto }) {
     try {
