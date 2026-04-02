@@ -18,11 +18,12 @@ import { RewardBranchesModule } from './core/reward-branches/reward-branches.mod
 import { ProfilesModule } from './core/profiles/profiles.module';
 import { ProfilePermissionsModule } from './core/profile-permissions/profile-permissions.module';
 import { CardsModule } from './core/cards/cards.module';
+import { EventsModule } from './core/events/events.module';
 
 @Module({
   imports: [UsersModule, UserProfilesModule, PermissionsModule, SecurityEventsModule, LoyaltyProgramsModule, 
     CompaniesModule, EventTypesModule, SecurityLogsModule, ClientsModule, CompanyProgramsModule, LevelsModule, RewardsModule, 
-    BranchesModule, RewardBranchesModule, ProfilesModule, ProfilePermissionsModule, CardsModule],
+    BranchesModule, RewardBranchesModule, ProfilesModule, ProfilePermissionsModule, CardsModule, EventsModule],
   controllers: [AppController],
   providers: [AppService],
 })

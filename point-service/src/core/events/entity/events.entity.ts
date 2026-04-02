@@ -16,10 +16,10 @@ export class Event {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
+    @Column({ nullable: true })
     points: number;
 
-    @Column()
+    @Column({ nullable: true })
     visits: number;
 
     @Column()
