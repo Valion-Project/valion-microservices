@@ -1,7 +1,7 @@
-import {BadRequestException, Inject, Injectable, InternalServerErrorException} from '@nestjs/common';
+import {BadRequestException, Inject, Injectable, InternalServerErrorException, NotFoundException} from '@nestjs/common';
 import {InjectRepository} from "@nestjs/typeorm";
 import {Event} from "./entity/events.entity";
-import {DataSource, Repository} from "typeorm";
+import {DataSource, In, Repository} from "typeorm";
 import {EventType} from "../event-types/entity/event-types.entity";
 import {Card} from "../cards/entity/cards.entity";
 import {Reward} from "../rewards/entity/rewards.entity";
@@ -14,6 +14,7 @@ import {CreateEventRedeemDto} from "./dto/create-event-redeem.dto";
 export class EventsService {
 
   constructor(
+    @InjectRepository(Event) private readonly eventRepository: Repository<Event>,
     @InjectRepository(EventType) private readonly eventTypeRepository: Repository<EventType>,
     @InjectRepository(Card) private readonly cardRepository: Repository<Card>,
     @InjectRepository(Reward) private readonly rewardRepository: Repository<Reward>,
@@ -287,5 +288,261 @@ export class EventsService {
     });
 
     return { event: savedEvent.event };
+  }
+
+  async findByCompanyId(companyId: number) {
+    const branchResponse = await firstValueFrom(
+      this.adminClient.send('find_branches_by_company_id', { companyId }).pipe(
+        catchError(err => {
+          if (err.statusCode === 404) {
+            throw new NotFoundException({
+              message: ['Sucursales no encontradas.'],
+              error: 'Not Found',
+              statusCode: 404
+            });
+          }
+          throw new InternalServerErrorException();
+        })
+      )
+    );
+
+    const branchIds = branchResponse.branches.map((branch: any) => branch.id);
+
+    const events = await this.eventRepository.find({
+      where: { branchId: In(branchIds) },
+      relations: ['card', 'reward', 'eventType']
+    });
+    if (events.length === 0) {
+      throw new NotFoundException({
+        message: ['Eventos no encontrados.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    const eventsWithRelations = await Promise.all(
+      events.map(async event => {
+        const companyProgramResponse = await firstValueFrom(
+          this.adminClient.send('find_company_program_by_id', { id: event.card.companyProgramId }).pipe(
+            catchError(err => {
+              if (err.statusCode === 404) {
+                throw new BadRequestException({
+                  message: ['Programa de fidelidad en la empresa no encontrado.'],
+                  error: 'Bad Request',
+                  statusCode: 400
+                });
+              }
+              throw new InternalServerErrorException();
+            })
+          )
+        );
+
+        const userResponse = await firstValueFrom(
+          this.userClient.send('find_user_by_id', { id: event.operatorUserId }).pipe(
+            catchError(err => {
+              if (err.statusCode === 404) {
+                throw new BadRequestException({
+                  message: ['Usuario no encontrado.'],
+                  error: 'Bad Request',
+                  statusCode: 400
+                });
+              }
+              throw new InternalServerErrorException();
+            })
+          )
+        );
+
+        const branch = branchResponse.branches.find((branch: any) => branch.id === event.branchId);
+
+        return {
+          ...event,
+          branch,
+          card: {
+            ...event.card,
+            companyProgram: companyProgramResponse.companyProgram,
+          },
+          operatorUser: userResponse.user
+        }
+      })
+    );
+
+    return { events: eventsWithRelations }
+  }
+
+  async findByBranchId(branchId: number) {
+    const events = await this.eventRepository.find({
+      where: { branchId: branchId },
+      relations: ['card', 'reward', 'eventType']
+    });
+    if (events.length === 0) {
+      throw new NotFoundException({
+        message: ['Eventos no encontrados.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    const eventsWithRelations = await Promise.all(
+      events.map(async event => {
+        const userResponse = await firstValueFrom(
+          this.userClient.send('find_user_by_id', { id: event.operatorUserId }).pipe(
+            catchError(err => {
+              if (err.statusCode === 404) {
+                throw new BadRequestException({
+                  message: ['Usuario no encontrado.'],
+                  error: 'Bad Request',
+                  statusCode: 400
+                });
+              }
+              throw new InternalServerErrorException();
+            })
+          )
+        );
+
+        const companyProgramResponse = await firstValueFrom(
+          this.adminClient.send('find_company_program_by_id', { id: event.card.companyProgramId }).pipe(
+            catchError(err => {
+              if (err.statusCode === 404) {
+                throw new BadRequestException({
+                  message: ['Programa de fidelidad en la empresa no encontrado.'],
+                  error: 'Bad Request',
+                  statusCode: 400
+                });
+              }
+              throw new InternalServerErrorException();
+            })
+          )
+        );
+
+        return {
+          ...event,
+          card: {
+            ...event.card,
+            companyProgram: companyProgramResponse.companyProgram,
+          },
+          operatorUser: userResponse.user
+        }
+      })
+    );
+
+    return { events: eventsWithRelations }
+  }
+
+  async findByOperatorUserId(operatorUserId: number) {
+    const events = await this.eventRepository.find({
+      where: { operatorUserId: operatorUserId },
+      relations: ['card', 'reward', 'eventType']
+    });
+    if (events.length === 0) {
+      throw new NotFoundException({
+        message: ['Eventos no encontrados.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    const eventsWithRelations = await Promise.all(
+      events.map(async event => {
+        const companyProgramResponse = await firstValueFrom(
+          this.adminClient.send('find_company_program_by_id', { id: event.card.companyProgramId }).pipe(
+            catchError(err => {
+              if (err.statusCode === 404) {
+                throw new BadRequestException({
+                  message: ['Programa de fidelidad en la empresa no encontrado.'],
+                  error: 'Bad Request',
+                  statusCode: 400
+                });
+              }
+              throw new InternalServerErrorException();
+            })
+          )
+        );
+
+        return {
+          ...event,
+          card: {
+            ...event.card,
+            companyProgram: companyProgramResponse.companyProgram,
+          }
+        }
+      })
+    );
+
+    return { events: eventsWithRelations }
+  }
+
+  async findByClientId(clientId: number) {
+    const events = await this.eventRepository.find({
+      where: { card: { client: { id: clientId } } },
+      relations: ['card', 'reward', 'eventType']
+    });
+    if (events.length === 0) {
+      throw new NotFoundException({
+        message: ['Eventos no encontrados.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    const eventsWithRelations = await Promise.all(
+      events.map(async event => {
+        const companyProgramResponse = await firstValueFrom(
+          this.adminClient.send('find_company_program_by_id', { id: event.card.companyProgramId }).pipe(
+            catchError(err => {
+              if (err.statusCode === 404) {
+                throw new BadRequestException({
+                  message: ['Programa de fidelidad en la empresa no encontrado.'],
+                  error: 'Bad Request',
+                  statusCode: 400
+                });
+              }
+              throw new InternalServerErrorException();
+            })
+          )
+        );
+
+        const branchResponse = await firstValueFrom(
+          this.adminClient.send('find_branch_by_id', { id: event.branchId }).pipe(
+            catchError(err => {
+              if (err.statusCode === 404) {
+                throw new BadRequestException({
+                  message: ['Usuario no encontrado.'],
+                  error: 'Bad Request',
+                  statusCode: 400
+                });
+              }
+              throw new InternalServerErrorException();
+            })
+          )
+        );
+
+        const userResponse = await firstValueFrom(
+          this.userClient.send('find_user_by_id', { id: event.operatorUserId }).pipe(
+            catchError(err => {
+              if (err.statusCode === 404) {
+                throw new BadRequestException({
+                  message: ['Usuario no encontrado.'],
+                  error: 'Bad Request',
+                  statusCode: 400
+                });
+              }
+              throw new InternalServerErrorException();
+            })
+          )
+        );
+
+        return {
+          ...event,
+          branch: branchResponse.branch,
+          card: {
+            ...event.card,
+            companyProgram: companyProgramResponse.companyProgram,
+          },
+          operatorUser: userResponse.user
+        }
+      })
+    );
+
+    return { events: eventsWithRelations }
   }
 }

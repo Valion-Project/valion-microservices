@@ -48,6 +48,7 @@ export class ClientsService {
     const newClient = this.clientRepository.create({
       identificationNumber: createClientDto.identificationNumber,
       userId: createClientDto.userId,
+      isInternal: createClientDto.isInternal,
     });
     const savedClient = await this.clientRepository.save(newClient);
 

@@ -1,4 +1,4 @@
-import {IsNotEmpty, IsNumber, MaxLength, MinLength} from 'class-validator';
+import {IsBoolean, IsNotEmpty, IsNumber, MaxLength, MinLength} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import {Type} from "class-transformer";
 
@@ -14,4 +14,10 @@ export class CreateClientDto {
   @Type(() => Number)
   @ApiProperty({ example: 1 })
   userId: number;
+
+  @IsNotEmpty({ message: 'El campo interno es obligatorio.' })
+  @IsBoolean({ message: 'El campo interno debe ser verdadero o falso.' })
+  @Type(() => Boolean)
+  @ApiProperty({ example: true })
+  isInternal: boolean;
 }

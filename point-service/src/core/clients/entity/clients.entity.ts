@@ -18,6 +18,9 @@ export class Client {
     @Column()
     userId: number;
 
+    @Column({ default: false })
+    isInternal: boolean;
+
     @CreateDateColumn()
     createdAt: Date;
 

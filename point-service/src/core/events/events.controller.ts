@@ -26,4 +26,40 @@ export class EventsController {
       throw new RpcException(err.response);
     }
   }
+
+  @MessagePattern('find_events_by_company_id')
+  async findByCompanyId(data: { companyId: number }) {
+    try {
+      return await this.eventsService.findByCompanyId(data.companyId);
+    } catch (err) {
+      throw new RpcException(err.response);
+    }
+  }
+
+  @MessagePattern('find_events_by_branch_id')
+  async findByBranchId(data: { branchId: number }) {
+    try {
+      return await this.eventsService.findByBranchId(data.branchId);
+    } catch (err) {
+      throw new RpcException(err.response);
+    }
+  }
+
+  @MessagePattern('find_events_by_operator_user_id')
+  async findByOperatorUserId(data: { operatorUserId: number }) {
+    try {
+      return await this.eventsService.findByOperatorUserId(data.operatorUserId);
+    } catch (err) {
+      throw new RpcException(err.response);
+    }
+  }
+
+  @MessagePattern('find_events_by_client_id')
+  async findByClientId(data: { clientId: number }) {
+    try {
+      return await this.eventsService.findByClientId(data.clientId);
+    } catch (err) {
+      throw new RpcException(err.response);
+    }
+  }
 }
