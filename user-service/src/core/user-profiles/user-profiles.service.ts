@@ -489,7 +489,27 @@ export class UserProfilesService {
       })
     }
 
-    return { userProfile };
+    const branchResponse = await firstValueFrom(
+      this.adminClient.send('find_branch_by_id', { id: userProfile.branchId }).pipe(
+        catchError(err => {
+          if (err.statusCode === 404) {
+            throw new BadRequestException({
+              message: ['Sucursal no encontrada.'],
+              error: 'Bad Request',
+              statusCode: 400
+            });
+          }
+          throw new InternalServerErrorException();
+        })
+      )
+    );
+
+    return {
+      userProfile: {
+        ...userProfile,
+        branch: branchResponse.branch
+      }
+    };
   }
 
   async updateById(id: number, updateUserProfileDto: UpdateUserProfileDto) {

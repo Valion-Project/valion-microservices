@@ -28,6 +28,15 @@ export class UserProfilesController {
     }
   }
 
+  @MessagePattern('find_user_profile_by_id')
+  async findById(data: { id: number }) {
+    try {
+      return await this.userProfilesService.findById(data.id);
+    } catch (err) {
+      throw new RpcException(err.response);
+    }
+  }
+
   @MessagePattern('find_context_options')
   async findContextOptions(data: { userId: number }) {
     try {

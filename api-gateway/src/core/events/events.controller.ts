@@ -13,8 +13,8 @@ import {EventsService} from "./events.service";
 import {CreateEventAddDto} from "./dto/create-event-add.dto";
 import {CreateEventRedeemDto} from "./dto/create-event-redeem.dto";
 
-@Controller('events-dev')
-export class EventsDevController {
+@Controller('events')
+export class EventsController {
 
   constructor(private eventsService: EventsService) {}
 

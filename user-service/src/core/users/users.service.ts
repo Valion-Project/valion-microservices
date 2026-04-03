@@ -117,7 +117,7 @@ export class UsersService {
     });
 
     await firstValueFrom(
-      this.pointClient.send('create_client', { identificationNumber: createUserDto.identificationNumber, userId: savedUserToken.user.id }).pipe(
+      this.pointClient.send('create_client', { identificationNumber: createUserDto.identificationNumber, userId: savedUserToken.user.id, isInternal: false }).pipe(
         catchError(() => of(null))
       )
     );
@@ -190,7 +190,7 @@ export class UsersService {
       )
     );
 
-    if (clientResponse?.client != null) {
+    if (clientResponse?.client != null && clientResponse.client.isInternal === false) {
       const securityLog = await this.securityLogRepository.findOne({
         where: {
           user: { id: user.id },

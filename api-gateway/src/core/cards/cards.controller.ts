@@ -3,16 +3,13 @@ import {
   Controller,
   Get,
   Param,
-  ParseIntPipe,
-  Post,
-  UsePipes,
-  ValidationPipe
+  ParseIntPipe, Post, UsePipes, ValidationPipe
 } from '@nestjs/common';
-import {CardsService} from "./cards.service";
+import { CardsService } from './cards.service';
 import {CreateCardDto} from "./dto/create-card.dto";
 
-@Controller('cards-dev')
-export class CardsDevController {
+@Controller('cards')
+export class CardsController {
 
   constructor(private cardService: CardsService) {}
 
@@ -27,8 +24,8 @@ export class CardsDevController {
     return this.cardService.findByCompanyId(id);
   }
 
-  @Get('client/:clientId')
-  getByClientId(@Param('clientId', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) clientId: number) {
-    return this.cardService.findByClientId(clientId);
+  @Get('client/:id')
+  getByClientId(@Param('id', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) id: number) {
+    return this.cardService.findByClientId(id);
   }
 }

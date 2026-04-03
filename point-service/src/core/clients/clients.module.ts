@@ -6,6 +6,7 @@ import {ConfigModule} from "@nestjs/config";
 import {TypeOrmModule} from "@nestjs/typeorm";
 import {Client} from "./entity/clients.entity";
 import {ClientsModule as ClientMicroserviceModule, Transport} from "@nestjs/microservices";
+import {JwtStrategy} from "../../security/jwt-strategy";
 
 @Module({
   imports: [
@@ -18,13 +19,13 @@ import {ClientsModule as ClientMicroserviceModule, Transport} from "@nestjs/micr
         name: 'USER_SERVICE',
         transport: Transport.TCP,
         options: {
-          host: process.env.USER_SERVICE_HOST ?? 'localhost',
+          host: process.env.USERS_SERVICE_HOST ?? 'localhost',
           port: Number(process.env.PORT_USER) ?? 3021,
         },
       },
     ]),
   ],
   controllers: [ClientsController, ClientsDevController],
-  providers: [ClientsService]
+  providers: [ClientsService, JwtStrategy]
 })
 export class ClientsModule {}

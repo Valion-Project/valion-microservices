@@ -67,8 +67,9 @@ export class LevelsService {
   }
 
   async findById(id: number) {
-    const level = await this.levelRepository.findOneBy({
-      id
+    const level = await this.levelRepository.findOne({
+      where: { id },
+      relations: ['company']
     });
     if (!level) {
       throw new NotFoundException({
