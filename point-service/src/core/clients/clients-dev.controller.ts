@@ -6,11 +6,14 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Request, UseGuards,
   UsePipes,
   ValidationPipe
 } from '@nestjs/common';
 import {ClientsService} from "./clients.service";
 import {CreateClientDto} from "./dto/create-client.dto";
+import {ApiBearerAuth} from "@nestjs/swagger";
+import {JwtAuthGuard} from "../../security/jwt-auth.guard";
 
 @Controller('clients-dev')
 export class ClientsDevController {
@@ -21,6 +24,13 @@ export class ClientsDevController {
   @UsePipes(new ValidationPipe({ whitelist: true }))
   create(@Body() createClientDto: CreateClientDto) {
     return this.clientsService.create(createClientDto);
+  }
+
+  @Get('my')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('jwt-auth')
+  getMyClient(@Request() req: any) {
+    return this.clientsService.findByUserId(req.user.id);
   }
 
   @Get('user/:id')

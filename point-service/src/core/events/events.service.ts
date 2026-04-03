@@ -443,6 +443,21 @@ export class EventsService {
 
     const eventsWithRelations = await Promise.all(
       events.map(async event => {
+        const branchResponse = await firstValueFrom(
+          this.adminClient.send('find_branch_by_id', { id: event.branchId }).pipe(
+            catchError(err => {
+              if (err.statusCode === 404) {
+                throw new BadRequestException({
+                  message: ['Usuario no encontrado.'],
+                  error: 'Bad Request',
+                  statusCode: 400
+                });
+              }
+              throw new InternalServerErrorException();
+            })
+          )
+        );
+
         const companyProgramResponse = await firstValueFrom(
           this.adminClient.send('find_company_program_by_id', { id: event.card.companyProgramId }).pipe(
             catchError(err => {
@@ -460,6 +475,7 @@ export class EventsService {
 
         return {
           ...event,
+          branch: branchResponse.branch,
           card: {
             ...event.card,
             companyProgram: companyProgramResponse.companyProgram,

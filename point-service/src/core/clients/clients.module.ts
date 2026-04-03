@@ -6,6 +6,7 @@ import {ConfigModule} from "@nestjs/config";
 import {TypeOrmModule} from "@nestjs/typeorm";
 import {Client} from "./entity/clients.entity";
 import {ClientsModule as ClientMicroserviceModule, Transport} from "@nestjs/microservices";
+import {JwtStrategy} from "../../security/jwt-strategy";
 
 @Module({
   imports: [
@@ -25,6 +26,6 @@ import {ClientsModule as ClientMicroserviceModule, Transport} from "@nestjs/micr
     ]),
   ],
   controllers: [ClientsController, ClientsDevController],
-  providers: [ClientsService]
+  providers: [ClientsService, JwtStrategy]
 })
 export class ClientsModule {}
