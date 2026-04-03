@@ -22,6 +22,14 @@ import {Client} from "../clients/entity/clients.entity";
           host: process.env.ADMIN_SERVICE_HOST ?? 'localhost',
           port: Number(process.env.PORT_ADMIN) ?? 3022,
         },
+      },
+      {
+        name: 'USER_SERVICE',
+        transport: Transport.TCP,
+        options: {
+          host: process.env.USERS_SERVICE_HOST ?? 'localhost',
+          port: Number(process.env.PORT_USER) ?? 3021,
+        },
       }
     ]),
   ],

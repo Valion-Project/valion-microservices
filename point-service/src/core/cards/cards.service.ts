@@ -14,6 +14,7 @@ export class CardsService {
     @InjectRepository(Card) private readonly cardRepository: Repository<Card>,
     @InjectRepository(Client) private readonly clientRepository: Repository<Client>,
     @Inject('ADMIN_SERVICE') private adminClient: ClientProxy,
+    @Inject('USER_SERVICE') private userClient: ClientProxy,
   ) {}
 
   async create(createCardDto: CreateCardDto) {
@@ -172,8 +173,27 @@ export class CardsService {
           )
         );
 
+        const userResponse = await firstValueFrom(
+          this.userClient.send('find_user_by_id', { id: card.client.userId }).pipe(
+            catchError(err => {
+              if (err.statusCode === 404) {
+                throw new BadRequestException({
+                  message: ['Usuario no encontrado.'],
+                  error: 'Bad Request',
+                  statusCode: 400
+                });
+              }
+              throw new InternalServerErrorException();
+            })
+          )
+        );
+
         return {
           ...card,
+          client: {
+            ...card.client,
+            user: userResponse.user,
+          },
           level: levelResponse.level,
           companyProgram: companyProgramResponse.companyProgram
         };
