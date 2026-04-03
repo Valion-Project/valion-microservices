@@ -280,6 +280,27 @@ export class UsersService {
     return this.findById(id);
   }
 
+  async generateTokenFromProfileToken(id: number) {
+    const user = await this.userRepository.findOneBy({
+      id
+    });
+    if (!user) {
+      throw new NotFoundException({
+        message: ['Usuario no encontrado.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    const payload = {
+      sub: user.id,
+      tokenVersion: user.tokenVersion
+    };
+    const token = this.jwtService.sign(payload);
+
+    return { token };
+  }
+
   async findByIdToValidateToken(id: number) {
     const user = await this.userRepository.findOneBy({
       id

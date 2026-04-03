@@ -64,6 +64,15 @@ export class UsersController {
     }
   }
 
+  @MessagePattern('generate_token_from_profile_token')
+  async generateTokenFromProfileToken(data: { id: number }) {
+    try {
+      return await this.usersService.generateTokenFromProfileToken(data.id);
+    } catch (err) {
+      throw new RpcException(err.response);
+    }
+  }
+
   @MessagePattern('find_user_by_id_to_validate_token')
   async findByIdToValidateToken(data: { id: number }) {
     try {

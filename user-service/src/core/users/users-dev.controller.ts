@@ -63,4 +63,11 @@ export class UsersDevController {
   updateById(@Param('id', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) id: number, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.updateById(id, updateUserDto);
   }
+
+  @Get('token-from-profile-token')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('jwt-auth')
+  generateTokenFromProfileToken(@Request() req: any) {
+    return this.usersService.generateTokenFromProfileToken(req.user.id);
+  }
 }
