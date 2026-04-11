@@ -25,4 +25,22 @@ export class OnboardingSessionsController {
       throw new RpcException(err.response);
     }
   }
+
+  @MessagePattern('find_onboarding_session_by_id_to_validate')
+  async findByIdToValidate(data: { id: string }) {
+    try {
+      return await this.onboardingSessionsService.findByIdToValidate(data.id);
+    } catch (err) {
+      throw new RpcException(err.response);
+    }
+  }
+
+  @MessagePattern('update_onboarding_session_to_linked')
+  async updateOnboardingSessionToLinked(data: { id: string }) {
+    try {
+      return await this.onboardingSessionsService.updateOnboardingSessionToLinked(data.id);
+    } catch (err) {
+      throw new RpcException(err.response);
+    }
+  }
 }

@@ -99,8 +99,23 @@ export class OnboardingSessionsService {
   }
 
   async findById(id: string) {
+    const onboardingSession = await this.onboardingSessionRepository.findOneBy({
+      id
+    });
+    if (!onboardingSession) {
+      throw new NotFoundException({
+        message: ['Qr de onboarding no encontrado.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    return { onboardingSession };
+  }
+
+  async findByIdToValidate(id: string) {
     const onboardingSession = await this.onboardingSessionRepository.findOne({
-      where: { id },
+      where: { id, status: OnboardingStatus.CREATED },
       relations: ['companyProgram', 'companyProgram.loyaltyProgram']
     });
     if (!onboardingSession) {
@@ -121,6 +136,25 @@ export class OnboardingSessionsService {
         statusCode: 404
       });
     }
+
+    return { onboardingSession };
+  }
+
+  async updateOnboardingSessionToLinked(id: string) {
+    const onboardingSession = await this.onboardingSessionRepository.findOneBy({
+      id
+    });
+    if (!onboardingSession) {
+      throw new NotFoundException({
+        message: ['Qr de onboarding no encontrado.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    await this.onboardingSessionRepository.update(id, {
+      status: OnboardingStatus.LINKED
+    });
 
     return { onboardingSession };
   }
