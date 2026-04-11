@@ -39,4 +39,19 @@ export class OnboardingSessionsService {
       })
     )
   }
+
+  findByIdToValidate(id: string) {
+    return this.adminClient.send('find_onboarding_session_by_id_to_validate', { id }).pipe(
+      catchError(err => {
+        if (err.statusCode === 404) {
+          throw new NotFoundException({
+            message: err.message,
+            error: err.error,
+            statusCode: err.statusCode
+          });
+        }
+        throw new InternalServerErrorException();
+      })
+    )
+  }
 }

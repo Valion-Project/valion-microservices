@@ -24,4 +24,9 @@ export class OnboardingSessionsController {
   getById(@Param('id') id: string) {
     return this.onboardingSessionsService.findById(id);
   }
+
+  @Get('validate/:id')
+  getByIdToValidate(@Param('id') id: string) {
+    return this.onboardingSessionsService.findByIdToValidate(id);
+  }
 }

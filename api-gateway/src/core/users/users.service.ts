@@ -11,6 +11,7 @@ import {catchError} from "rxjs";
 import {CreateUserDto} from "./dto/create-user.dto";
 import {LoginUserDto} from "./dto/login-user.dto";
 import { UpdateUserDto } from './dto/update-user.dto';
+import {UserQuickStartDto} from "./dto/user-quick-start.dto";
 
 @Injectable()
 export class UsersService {
@@ -57,6 +58,21 @@ export class UsersService {
           });
         } else if (err.statusCode === 401) {
           throw new UnauthorizedException({
+            message: err.message,
+            error: err.error,
+            statusCode: err.statusCode
+          });
+        }
+        throw new InternalServerErrorException();
+      })
+    );
+  }
+
+  quickStart(userQuickStartDto: UserQuickStartDto) {
+    return this.usersClient.send('quick_start', userQuickStartDto).pipe(
+      catchError(err => {
+        if (err.statusCode === 400) {
+          throw new BadRequestException({
             message: err.message,
             error: err.error,
             statusCode: err.statusCode

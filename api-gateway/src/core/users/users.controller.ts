@@ -16,6 +16,7 @@ import {ApiBearerAuth} from "@nestjs/swagger";
 import {LoginUserDto} from "./dto/login-user.dto";
 import {CreateUserDto} from "./dto/create-user.dto";
 import { UpdateUserDto } from './dto/update-user.dto';
+import {UserQuickStartDto} from "./dto/user-quick-start.dto";
 
 @Controller('users')
 export class UsersController {
@@ -33,6 +34,12 @@ export class UsersController {
   @ApiBearerAuth('jwt-auth')
   validateToken(@Request() req: any) {
     return this.usersService.validateToken(req.user.id);
+  }
+
+  @Post('quick-start')
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  quickStart(@Body() userQuickStartDto: UserQuickStartDto) {
+    return this.usersService.quickStart(userQuickStartDto);
   }
 
   @Post('login')
