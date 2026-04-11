@@ -8,6 +8,7 @@ import { CompanyProgramsModule } from './core/company-programs/company-programs.
 import { BranchesModule } from './core/branches/branches.module';
 import { LoyaltyProgramsModule } from './core/loyalty-programs/loyalty-programs.module';
 import {LevelsModule} from "./core/levels/levels.module";
+import { OnboardingSessionsModule } from './core/onboarding-sessions/onboarding-sessions.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import {LevelsModule} from "./core/levels/levels.module";
     CompanyProgramsModule,
     BranchesModule,
     LoyaltyProgramsModule,
+    OnboardingSessionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

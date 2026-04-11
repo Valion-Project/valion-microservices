@@ -59,6 +59,22 @@ export class CompanyProgramsService {
     return { companyProgram: savedCompanyProgram };
   }
 
+  async findByCompanyId(companyId: number) {
+    const companyPrograms = await this.companyProgramRepository.find({
+      where: { company: { id: companyId } },
+      relations: ['loyaltyProgram']
+    });
+    if (companyPrograms.length === 0) {
+      throw new NotFoundException({
+        message: ['Programas de fidelidad en empresa no encontrados.'],
+        error: "Not Found",
+        statusCode: 404
+      });
+    }
+
+    return { companyPrograms };
+  }
+
   async findById(id: number) {
     const companyProgram = await this.companyProgramRepository.findOne({
       where: { id },
