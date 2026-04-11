@@ -25,6 +25,21 @@ export class CompanyProgramsService {
     );
   }
 
+  findByCompanyId(companyId: number) {
+    return this.adminClient.send('find_company_programs_by_company_id', { companyId }).pipe(
+      catchError(err => {
+        if (err.statusCode === 404) {
+          throw new NotFoundException({
+            message: err.message,
+            error: err.error,
+            statusCode: err.statusCode
+          });
+        }
+        throw new InternalServerErrorException();
+      })
+    )
+  }
+
   findCompanyProgramAvailabilityInLoyaltyPrograms(companyId: number) {
     return this.adminClient.send('find_company_program_availability_in_loyalty_programs', { companyId }).pipe(
       catchError(err => {

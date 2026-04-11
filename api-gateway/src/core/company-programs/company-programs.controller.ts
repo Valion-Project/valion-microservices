@@ -23,6 +23,11 @@ export class CompanyProgramsController {
     return this.companyProgramsService.create(createCompanyProgramDto);
   }
 
+  @Get('company/:companyId')
+  getByCompanyId(@Param('companyId', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) companyId: number) {
+    return this.companyProgramsService.findByCompanyId(companyId);
+  }
+
   @Get('availability/loyalty-programs/:companyId')
   getCompanyProgramAvailabilityInLoyaltyPrograms(@Param('companyId', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) companyId: number) {
     return this.companyProgramsService.findCompanyProgramAvailabilityInLoyaltyPrograms(companyId);
