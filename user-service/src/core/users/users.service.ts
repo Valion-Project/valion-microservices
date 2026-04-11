@@ -19,6 +19,7 @@ import {MailService} from "../../mail/mail.service";
 import {ClientProxy} from "@nestjs/microservices";
 import {catchError, firstValueFrom, of} from "rxjs";
 import { UpdateUserDto } from './dto/update-user.dto';
+import {UserQuickStartDto} from "./dto/user-quick-start.dto";
 
 @Injectable()
 export class UsersService {
@@ -28,6 +29,7 @@ export class UsersService {
     @InjectRepository(SecurityEvent) private securityEventRepository: Repository<SecurityEvent>,
     @InjectRepository(SecurityLog) private securityLogRepository: Repository<SecurityLog>,
     @Inject('POINT_SERVICE') private pointClient: ClientProxy,
+    @Inject('ADMIN_SERVICE') private adminClient: ClientProxy,
     private jwtService: JwtService,
     private dataSource: DataSource,
     private mailService: MailService
@@ -163,6 +165,72 @@ export class UsersService {
     return { message: 'success' };
   }
 
+  async quickStart(userQuickStartDto: UserQuickStartDto) {
+    const userExisting = await this.userRepository.findOneBy({
+      email: userQuickStartDto.email
+    });
+    if (userExisting) {
+      throw new BadRequestException({
+        message: ['Correo ya existente.'],
+        error: "Bad Request",
+        statusCode: 400
+      });
+    }
+
+    await firstValueFrom(
+      this.adminClient.send('find_onboarding_session_by_id_to_validate', { id: userQuickStartDto.onboardingSessionId }).pipe(
+        catchError(err => {
+          if (err.statusCode === 404) {
+            throw new BadRequestException({
+              message: ['Onboarding no encontrado.'],
+              error: 'Bad Request',
+              statusCode: 400
+            });
+          }
+          throw new InternalServerErrorException();
+        })
+      )
+    );
+
+    const newUser = this.userRepository.create({
+      name: '',
+      lastName: '',
+      email: userQuickStartDto.email,
+      password: '',
+      tokenVersion: 1,
+      isSuperAdmin: false,
+      isPending: true,
+      onboardingSessionId: userQuickStartDto.onboardingSessionId,
+    });
+
+    const savedUser = await this.userRepository.save(newUser);
+
+    await firstValueFrom(
+      this.adminClient.send('update_onboarding_session_to_linked', { id: userQuickStartDto.onboardingSessionId }).pipe(
+        catchError(err => {
+          if (err.statusCode === 404) {
+            throw new BadRequestException({
+              message: ['Onboarding no encontrado.'],
+              error: 'Bad Request',
+              statusCode: 400
+            });
+          }
+          throw new InternalServerErrorException();
+        })
+      )
+    );
+
+    const payload = {
+      sub: savedUser.id,
+      tokenVersion: savedUser.tokenVersion
+    };
+    const token = this.jwtService.sign(payload);
+
+    await this.mailService.sendQuickStartEmail(userQuickStartDto.email, token);
+
+    return { user: savedUser };
+  }
+
   async login(loginUserDto: LoginUserDto) {
     const user = await this.userRepository.findOne({
       where: { email: loginUserDto.email }
@@ -170,6 +238,14 @@ export class UsersService {
     if (!user) {
       throw new UnauthorizedException({
         message: ['Correo o contraseña inválidos.'],
+        error: "Unauthorized",
+        statusCode: 401
+      });
+    }
+
+    if (user.isPending) {
+      throw new UnauthorizedException({
+        message: ['Su perfil está incompleto. Por favor, complete su registro.'],
         error: "Unauthorized",
         statusCode: 401
       });

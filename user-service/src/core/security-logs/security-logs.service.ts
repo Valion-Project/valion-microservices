@@ -47,6 +47,14 @@ export class SecurityLogsService {
       });
     }
 
+    if (user.isPending) {
+      throw new BadRequestException({
+        message: ['Su perfil está incompleto. Por favor, complete su registro.'],
+        error: "Unauthorized",
+        statusCode: 401
+      });
+    }
+
     const securityEvent = await this.securityEventRepository.findOneBy({
       name: "FORGOT_PASSWORD"
     });

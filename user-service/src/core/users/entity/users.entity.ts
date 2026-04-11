@@ -31,6 +31,12 @@ export class User {
     @Column()
     isSuperAdmin: boolean;
 
+    @Column({ default: false })
+    isPending: boolean;
+
+    @Column({ nullable: true })
+    onboardingSessionId: string;
+
     @CreateDateColumn()
     createdAt: Date;
 

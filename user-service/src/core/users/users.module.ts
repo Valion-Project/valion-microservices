@@ -27,6 +27,14 @@ import {MailService} from "../../mail/mail.service";
           port: Number(process.env.PORT_POINT) ?? 3023,
         },
       },
+      {
+        name: 'ADMIN_SERVICE',
+        transport: Transport.TCP,
+        options: {
+          host: process.env.ADMIN_SERVICE_HOST ?? 'localhost',
+          port: Number(process.env.PORT_ADMIN) ?? 3022,
+        },
+      },
     ]),
     JwtModule.register({
       secret: process.env.JWT_SECRET ?? 'Secret_Key_Valion_Back_022506',

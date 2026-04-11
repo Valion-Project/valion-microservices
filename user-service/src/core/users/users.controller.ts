@@ -4,6 +4,7 @@ import {MessagePattern, RpcException} from "@nestjs/microservices";
 import {CreateUserDto} from "./dto/create-user.dto";
 import {LoginUserDto} from "./dto/login-user.dto";
 import { UpdateUserDto } from './dto/update-user.dto';
+import {UserQuickStartDto} from "./dto/user-quick-start.dto";
 
 @Controller('users')
 export class UsersController {
@@ -23,6 +24,15 @@ export class UsersController {
   async validateToken(data: { id: number }) {
     try {
       return await this.usersService.validateToken(data.id);
+    } catch (err) {
+      throw new RpcException(err.response);
+    }
+  }
+
+  @MessagePattern('quick_start')
+  async quickStart(data: UserQuickStartDto) {
+    try {
+      return await this.usersService.quickStart(data);
     } catch (err) {
       throw new RpcException(err.response);
     }
