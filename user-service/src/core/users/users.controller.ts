@@ -5,6 +5,7 @@ import {CreateUserDto} from "./dto/create-user.dto";
 import {LoginUserDto} from "./dto/login-user.dto";
 import { UpdateUserDto } from './dto/update-user.dto';
 import {UserQuickStartDto} from "./dto/user-quick-start.dto";
+import {CompleteOnboardingDto} from "./dto/complete-onboarding.dto";
 
 @Controller('users')
 export class UsersController {
@@ -33,6 +34,15 @@ export class UsersController {
   async quickStart(data: UserQuickStartDto) {
     try {
       return await this.usersService.quickStart(data);
+    } catch (err) {
+      throw new RpcException(err.response);
+    }
+  }
+
+  @MessagePattern('complete_onboarding')
+  async completeOnboarding(data: { userId: number, completeOnboardingDto: CompleteOnboardingDto }) {
+    try {
+      return await this.usersService.completeOnboarding(data.userId, data.completeOnboardingDto);
     } catch (err) {
       throw new RpcException(err.response);
     }
@@ -78,6 +88,15 @@ export class UsersController {
   async generateTokenFromProfileToken(data: { id: number }) {
     try {
       return await this.usersService.generateTokenFromProfileToken(data.id);
+    } catch (err) {
+      throw new RpcException(err.response);
+    }
+  }
+
+  @MessagePattern('verify_pending_user')
+  async verifyPendingUser(data: { id: number }) {
+    try {
+      return await this.usersService.verifyPendingUser(data.id);
     } catch (err) {
       throw new RpcException(err.response);
     }

@@ -20,6 +20,7 @@ import {ClientProxy} from "@nestjs/microservices";
 import {catchError, firstValueFrom, of} from "rxjs";
 import { UpdateUserDto } from './dto/update-user.dto';
 import {UserQuickStartDto} from "./dto/user-quick-start.dto";
+import {CompleteOnboardingDto} from "./dto/complete-onboarding.dto";
 
 @Injectable()
 export class UsersService {
@@ -207,6 +208,60 @@ export class UsersService {
 
     await firstValueFrom(
       this.adminClient.send('update_onboarding_session_to_linked', { id: userQuickStartDto.onboardingSessionId }).pipe(
+        catchError(() => of(null))
+      )
+    );
+
+    const payload = {
+      sub: savedUser.id,
+      tokenVersion: savedUser.tokenVersion
+    };
+    const token = this.jwtService.sign(payload);
+
+    await this.mailService.sendQuickStartEmail(userQuickStartDto.email, token);
+
+    return { user: savedUser };
+  }
+
+  async completeOnboarding(userId: number, completeOnboardingDto: CompleteOnboardingDto) {
+    const user = await this.userRepository.findOneBy({
+      id: userId
+    });
+    if (!user) {
+      throw new BadRequestException({
+        message: ['Usuario no encontrado.'],
+        error: 'Bad Request',
+        statusCode: 400
+      });
+    }
+
+    if (!user.isPending) {
+      throw new BadRequestException({
+        message: ['El usuario ya ha completado su registro.'],
+        error: 'Bad Request',
+        statusCode: 400
+      });
+    }
+
+    const clientResponse = await firstValueFrom(
+      this.pointClient.send('find_client_by_identification_number', { identificationNumber: completeOnboardingDto.identificationNumber }).pipe(
+        catchError((err) => {
+          if (err.code === 'ENOTFOUND' || err.code === 'ECONNREFUSED') {
+            throw new InternalServerErrorException({
+              message: ['Ocurrió un error en su petición.'],
+              error: 'Internal Server Error:',
+              statusCode: 500
+            });
+          } else if (err.statusCode === 404) {
+            return of(null);
+          }
+          throw new InternalServerErrorException();
+        })
+      )
+    );
+
+    await firstValueFrom(
+      this.adminClient.send('find_onboarding_session_by_id', { id: user.onboardingSessionId }).pipe(
         catchError(err => {
           if (err.statusCode === 404) {
             throw new BadRequestException({
@@ -220,15 +275,66 @@ export class UsersService {
       )
     );
 
+    if (clientResponse?.client != null) {
+      throw new BadRequestException({
+        message: ['Ya existe un cliente con su dni.'],
+        error: "Bad Request",
+        statusCode: 400
+      });
+    }
+
+    const securityEvent = await this.securityEventRepository.findOneBy({
+      name: "ONBOARDING"
+    });
+    if (!securityEvent) {
+      throw new NotFoundException({
+        message: ['Evento de seguridad no encontrado.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(completeOnboardingDto.password, 10);
+
+    await this.dataSource.transaction(async manager => {
+      const userRepository = manager.getRepository(User);
+      const securityLogRepository = manager.getRepository(SecurityLog);
+
+      await userRepository.update(user.id, {
+        name: completeOnboardingDto.name,
+        lastName: completeOnboardingDto.lastName,
+        password: hashedPassword,
+        isPending: false,
+      });
+
+      const newSecurityLog = securityLogRepository.create({
+        data: 'ONBOARDING COMPLETED',
+        used: true,
+        user: user,
+        securityEvent: securityEvent,
+      });
+      await securityLogRepository.save(newSecurityLog);
+    });
+
+    await firstValueFrom(
+      this.adminClient.send('update_onboarding_session_to_used', { id: user.onboardingSessionId }).pipe(
+        catchError(() => of(null))
+      )
+    );
+
+    await firstValueFrom(
+      this.pointClient.send('create_client', { identificationNumber: completeOnboardingDto.identificationNumber, userId: user.id, isInternal: false }).pipe(
+        catchError(() => of(null))
+      )
+    );
+
     const payload = {
-      sub: savedUser.id,
-      tokenVersion: savedUser.tokenVersion
+      sub: user.id,
+      tokenVersion: user.tokenVersion
     };
     const token = this.jwtService.sign(payload);
 
-    await this.mailService.sendQuickStartEmail(userQuickStartDto.email, token);
-
-    return { user: savedUser };
+    return { token };
   }
 
   async login(loginUserDto: LoginUserDto) {
@@ -267,26 +373,42 @@ export class UsersService {
     );
 
     if (clientResponse?.client != null && clientResponse.client.isInternal === false) {
-      const securityLog = await this.securityLogRepository.findOne({
-        where: {
-          user: { id: user.id },
-          securityEvent: { name: "REGISTER" }
-        },
-      });
-      if (!securityLog) {
-        throw new UnauthorizedException({
-          message: ['Problema con la validación de su cuenta.'],
-          error: "Unauthorized",
-          statusCode: 401
+      if (user.onboardingSessionId) {
+        const securityLog = await this.securityLogRepository.findOne({
+          where: {
+            user: { id: user.id },
+            securityEvent: { name: "ONBOARDING" }
+          },
         });
-      }
+        if (!securityLog) {
+          throw new UnauthorizedException({
+            message: ['Problema con la validación de su cuenta.'],
+            error: "Unauthorized",
+            statusCode: 401
+          });
+        }
+      } else {
+        const securityLog = await this.securityLogRepository.findOne({
+          where: {
+            user: { id: user.id },
+            securityEvent: { name: "REGISTER" }
+          },
+        });
+        if (!securityLog) {
+          throw new UnauthorizedException({
+            message: ['Problema con la validación de su cuenta.'],
+            error: "Unauthorized",
+            statusCode: 401
+          });
+        }
 
-      if (!securityLog.used) {
-        throw new UnauthorizedException({
-          message: ['Necesita validar su correo con el enlace que le hemos enviado.'],
-          error: "Unauthorized",
-          statusCode: 401
-        });
+        if (!securityLog.used) {
+          throw new UnauthorizedException({
+            message: ['Necesita validar su correo con el enlace que le hemos enviado.'],
+            error: "Unauthorized",
+            statusCode: 401
+          });
+        }
       }
     }
 
@@ -375,6 +497,52 @@ export class UsersService {
     const token = this.jwtService.sign(payload);
 
     return { token };
+  }
+
+  async verifyPendingUser(userId: number) {
+    const user = await this.userRepository.findOneBy({
+      id: userId
+    });
+    if (!user) {
+      throw new NotFoundException({
+        message: ['Usuario no encontrado.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    if (!user.isPending) {
+      throw new BadRequestException({
+        message: ['El usuario no está en estado pendiente.'],
+        error: 'Bad Request',
+        statusCode: 400
+      });
+    }
+
+    if (!user.onboardingSessionId) {
+      throw new BadRequestException({
+        message: ['El usuario no tiene una sesión de onboarding asociada.'],
+        error: 'Bad Request',
+        statusCode: 400
+      });
+    }
+
+    await firstValueFrom(
+      this.adminClient.send('find_onboarding_session_by_id', { id: user.onboardingSessionId }).pipe(
+        catchError(err => {
+          if (err.statusCode === 404) {
+            throw new BadRequestException({
+              message: ['Onboarding no encontrado.'],
+              error: 'Bad Request',
+              statusCode: 400
+            });
+          }
+          throw new InternalServerErrorException();
+        })
+      )
+    );
+
+    return { user };
   }
 
   async findByIdToValidateToken(id: number) {

@@ -17,6 +17,7 @@ import {CreateUserDto} from "./dto/create-user.dto";
 import {LoginUserDto} from "./dto/login-user.dto";
 import { UpdateUserDto } from './dto/update-user.dto';
 import {UserQuickStartDto} from "./dto/user-quick-start.dto";
+import {CompleteOnboardingDto} from "./dto/complete-onboarding.dto";
 
 @Controller('users-dev')
 export class UsersDevController {
@@ -40,6 +41,14 @@ export class UsersDevController {
   @UsePipes(new ValidationPipe({ whitelist: true }))
   quickStart(@Body() userQuickStartDto: UserQuickStartDto) {
     return this.usersService.quickStart(userQuickStartDto);
+  }
+
+  @Post('complete-onboarding')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('jwt-auth')
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  completeOnboarding(@Request() req: any, @Body() completeOnboardingDto: CompleteOnboardingDto) {
+    return this.usersService.completeOnboarding(req.user.id, completeOnboardingDto);
   }
 
   @Post('login')
@@ -76,5 +85,12 @@ export class UsersDevController {
   @ApiBearerAuth('jwt-auth')
   generateTokenFromProfileToken(@Request() req: any) {
     return this.usersService.generateTokenFromProfileToken(req.user.id);
+  }
+
+  @Get('verify-pending')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('jwt-auth')
+  verifyPendingUser(@Request() req: any) {
+    return this.usersService.verifyPendingUser(req.user.id);
   }
 }
