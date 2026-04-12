@@ -140,6 +140,25 @@ export class OnboardingSessionsService {
     return { onboardingSession };
   }
 
+  async updateOnboardingSessionToUsed(id: string) {
+    const onboardingSession = await this.onboardingSessionRepository.findOneBy({
+      id
+    });
+    if (!onboardingSession) {
+      throw new NotFoundException({
+        message: ['Qr de onboarding no encontrado.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    await this.onboardingSessionRepository.update(id, {
+      status: OnboardingStatus.USED
+    });
+
+    return { onboardingSession };
+  }
+
   async updateOnboardingSessionToLinked(id: string) {
     const onboardingSession = await this.onboardingSessionRepository.findOneBy({
       id

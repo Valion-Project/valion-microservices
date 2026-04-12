@@ -35,6 +35,15 @@ export class OnboardingSessionsController {
     }
   }
 
+  @MessagePattern('update_onboarding_session_to_used')
+  async updateOnboardingSessionToUsed(data: { id: string }) {
+    try {
+      return await this.onboardingSessionsService.updateOnboardingSessionToUsed(data.id);
+    } catch (err) {
+      throw new RpcException(err.response);
+    }
+  }
+
   @MessagePattern('update_onboarding_session_to_linked')
   async updateOnboardingSessionToLinked(data: { id: string }) {
     try {
