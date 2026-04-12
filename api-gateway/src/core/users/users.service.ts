@@ -12,6 +12,7 @@ import {CreateUserDto} from "./dto/create-user.dto";
 import {LoginUserDto} from "./dto/login-user.dto";
 import { UpdateUserDto } from './dto/update-user.dto';
 import {UserQuickStartDto} from "./dto/user-quick-start.dto";
+import {CompleteOnboardingDto} from "./dto/complete-onboarding.dto";
 
 @Injectable()
 export class UsersService {
@@ -73,6 +74,27 @@ export class UsersService {
       catchError(err => {
         if (err.statusCode === 400) {
           throw new BadRequestException({
+            message: err.message,
+            error: err.error,
+            statusCode: err.statusCode
+          });
+        }
+        throw new InternalServerErrorException();
+      })
+    );
+  }
+
+  completeOnboarding(id: number, completeOnboardingDto: CompleteOnboardingDto) {
+    return this.usersClient.send('complete_onboarding', { userId: id, completeOnboardingDto }).pipe(
+      catchError(err => {
+        if (err.statusCode === 400) {
+          throw new BadRequestException({
+            message: err.message,
+            error: err.error,
+            statusCode: err.statusCode
+          });
+        } else if (err.statusCode === 404) {
+          throw new NotFoundException({
             message: err.message,
             error: err.error,
             statusCode: err.statusCode
@@ -165,6 +187,27 @@ export class UsersService {
       catchError(err => {
         if (err.statusCode === 404) {
           throw new NotFoundException({
+            message: err.message,
+            error: err.error,
+            statusCode: err.statusCode
+          });
+        }
+        throw new InternalServerErrorException();
+      })
+    );
+  }
+
+  verifyPendingUser(id: number) {
+    return this.usersClient.send('verify_pending_user', { id }).pipe(
+      catchError(err => {
+        if (err.statusCode === 404) {
+          throw new NotFoundException({
+            message: err.message,
+            error: err.error,
+            statusCode: err.statusCode
+          });
+        } else if (err.statusCode === 400) {
+          throw new BadRequestException({
             message: err.message,
             error: err.error,
             statusCode: err.statusCode
