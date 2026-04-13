@@ -25,7 +25,7 @@ export class OnboardingSession {
     status: OnboardingStatus;
 
     @Column()
-    operatorUserId: number;
+    operatorUserProfileId: number;
 
     @ManyToOne(() => Branch)
     branch: Branch;

@@ -77,7 +77,7 @@ export class OnboardingSessionsService {
     const newOnboardingSession = this.onboardingSessionRepository.create({
       quantity: createOnboardingSessionDto.quantity,
       status: OnboardingStatus.CREATED,
-      operatorUserId: userProfileResponse.userProfile.user.id,
+      operatorUserProfileId: userProfileResponse.userProfile.id,
       branch: branch,
       companyProgram: companyProgram
     });
@@ -99,8 +99,9 @@ export class OnboardingSessionsService {
   }
 
   async findById(id: string) {
-    const onboardingSession = await this.onboardingSessionRepository.findOneBy({
-      id
+    const onboardingSession = await this.onboardingSessionRepository.findOne({
+      where: { id },
+      relations: ['branch', 'companyProgram', 'companyProgram.loyaltyProgram', 'companyProgram.company']
     });
     if (!onboardingSession) {
       throw new NotFoundException({
