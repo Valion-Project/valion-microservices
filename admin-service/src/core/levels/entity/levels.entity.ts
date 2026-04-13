@@ -19,6 +19,9 @@ export class Level {
     @Column('decimal', { precision: 10, scale: 2 })
     multiplier: number;
 
+    @Column({ default: false })
+    isDefault: boolean;
+
     @ManyToOne(() => Company)
     company: Company;
 

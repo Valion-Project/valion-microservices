@@ -36,6 +36,15 @@ export class LevelsController {
     }
   }
 
+  @MessagePattern('find_default_level_by_company_id')
+  async findDefaultLevelByCompanyId(data: { companyId: number }) {
+    try {
+      return await this.levelsService.findDefaultByCompanyId(data.companyId);
+    } catch (err) {
+      throw new RpcException(err.response);
+    }
+  }
+
   @MessagePattern('update_level_by_id')
   async updateLevelById(data: { id: number, updateLevelDto: UpdateLevelDto }) {
     try {

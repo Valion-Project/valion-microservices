@@ -1,4 +1,4 @@
-import {IsNotEmpty, IsNumber, Min} from 'class-validator';
+import {IsBoolean, IsNotEmpty, IsNumber, Min} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import {Type} from "class-transformer";
 
@@ -13,6 +13,12 @@ export class CreateLevelDto {
   @ApiProperty({ example: 1.1 })
   @Type(() => Number)
   multiplier: number;
+
+  @IsNotEmpty({ message: 'El campo "nivel por defecto" es obligatorio.' })
+  @IsBoolean({ message: 'El campo "nivel por defecto" debe ser verdadero o falso.' })
+  @Type(() => Boolean)
+  @ApiProperty({ example: false })
+  isDefault: boolean;
 
   @IsNotEmpty({ message: 'El ID de la empresa es obligatorio.' })
   @IsNumber({}, { message: 'El ID de la empresa debe ser un número.' })
