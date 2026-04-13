@@ -260,7 +260,7 @@ export class UsersService {
       )
     );
 
-    await firstValueFrom(
+    const onboardingSessionResponse = await firstValueFrom(
       this.adminClient.send('find_onboarding_session_by_id', { id: user.onboardingSessionId }).pipe(
         catchError(err => {
           if (err.statusCode === 404) {
@@ -322,8 +322,21 @@ export class UsersService {
       )
     );
 
-    await firstValueFrom(
+    const clientCreatedResponse = await firstValueFrom(
       this.pointClient.send('create_client', { identificationNumber: completeOnboardingDto.identificationNumber, userId: user.id, isInternal: false }).pipe(
+        catchError(() => of(null))
+      )
+    );
+
+    await firstValueFrom(
+      this.pointClient.send('create_card_from_onboarding', {
+        clientId: clientCreatedResponse.client.id,
+        companyId: onboardingSessionResponse.onboardingSession.companyProgram.company.id,
+        companyProgramId: onboardingSessionResponse.onboardingSession.companyProgram.id,
+        userProfileId: onboardingSessionResponse.onboardingSession.operatorUserProfileId,
+        quantity: onboardingSessionResponse.onboardingSession.quantity,
+        branchId: onboardingSessionResponse.onboardingSession.branch.id
+      }).pipe(
         catchError(() => of(null))
       )
     );

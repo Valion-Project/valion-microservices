@@ -2,6 +2,7 @@ import { Controller } from '@nestjs/common';
 import { MessagePattern, RpcException } from '@nestjs/microservices';
 import { CardsService } from './cards.service';
 import {CreateCardDto} from "./dto/create-card.dto";
+import {CreateCardFromOnboardingDto} from "./dto/create-card-from-onboarding.dto";
 
 @Controller('cards')
 export class CardsController {
@@ -9,9 +10,18 @@ export class CardsController {
   constructor(private cardsService: CardsService) {}
 
   @MessagePattern('create_card')
-  async createClient(data: CreateCardDto) {
+  async createCard(data: CreateCardDto) {
     try {
       return await this.cardsService.create(data);
+    } catch (err) {
+      throw new RpcException(err.response);
+    }
+  }
+
+  @MessagePattern('create_card_from_onboarding')
+  async createClientFromOnboarding(data: CreateCardFromOnboardingDto) {
+    try {
+      return await this.cardsService.createFromOnboarding(data);
     } catch (err) {
       throw new RpcException(err.response);
     }

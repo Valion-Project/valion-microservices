@@ -7,13 +7,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import {ConfigModule} from "@nestjs/config";
 import {ClientsModule, Transport} from "@nestjs/microservices";
 import {Client} from "../clients/entity/clients.entity";
+import {EventType} from "../event-types/entity/event-types.entity";
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true
     }),
-    TypeOrmModule.forFeature([Card, Client]),
+    TypeOrmModule.forFeature([Card, Client, EventType]),
     ClientsModule.register([
       {
         name: 'ADMIN_SERVICE',
