@@ -1,9 +1,8 @@
-import {IsNotEmpty, IsNumber, IsOptional, Min} from 'class-validator';
+import {IsNotEmpty, IsNumber, Min} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import {Type} from "class-transformer";
 
 export class CreateOnboardingSessionDto {
-  @IsOptional()
   @IsNotEmpty({ message: 'La cantidad es obligatoria.' })
   @IsNumber({}, { message: 'La cantidad debe ser un número.' })
   @Min(0, { message: 'La cantidad no puede ser negativo.' })
