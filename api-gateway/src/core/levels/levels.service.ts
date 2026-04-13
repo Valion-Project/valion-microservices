@@ -50,6 +50,12 @@ export class LevelsService {
             error: err.error,
             statusCode: err.statusCode
           });
+        } else if (err.statusCode === 400) {
+          throw new BadRequestException({
+            message: err.message,
+            error: err.error,
+            statusCode: err.statusCode
+          });
         }
         throw new InternalServerErrorException();
       })
