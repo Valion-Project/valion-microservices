@@ -150,6 +150,14 @@ export class LevelsService {
         });
       }
     } else if (!updateLevelDto.isDefault && level.isDefault) {
+      if (updateLevelDto.newDefaultLevelId === undefined || updateLevelDto.newDefaultLevelId === null) {
+        throw new BadRequestException({
+          message: ['Nuevo nivel por defecto no enviado.'],
+          error: "Bad Request",
+          statusCode: 400
+        });
+      }
+
       const newDefaultLevel = await this.levelRepository.findOneBy({
         id: updateLevelDto.newDefaultLevelId,
         company: { id: level.company.id }
