@@ -38,6 +38,11 @@ export class ClientsDevController {
     return this.clientsService.findByUserId(id);
   }
 
+  @Get('qr-id/:id')
+  getQrById(@Param('id', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) id: number) {
+    return this.clientsService.findQrById(id);
+  }
+
   @Get('identificationNumber/:identificationNumber')
   getByIdentificationNumber(@Param('identificationNumber') identificationNumber: string) {
     return this.clientsService.findByIdentificationNumber(identificationNumber);

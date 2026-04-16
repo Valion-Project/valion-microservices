@@ -26,6 +26,15 @@ export class ClientsController {
     }
   }
 
+  @MessagePattern('find_client_qr_by_id')
+  async findQrById(data: { userId: number }) {
+    try {
+      return await this.clientsService.findQrById(data.userId);
+    } catch (err) {
+      throw new RpcException(err.response);
+    }
+  }
+
   @MessagePattern('find_client_by_identification_number')
   async findByIdentificationNumber(data: { identificationNumber: string }) {
     try {

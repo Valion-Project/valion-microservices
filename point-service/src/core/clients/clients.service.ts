@@ -6,6 +6,7 @@ import {CreateClientDto} from "./dto/create-client.dto";
 import {ClientProxy} from "@nestjs/microservices";
 import {catchError, firstValueFrom} from "rxjs";
 import {Card} from "../cards/entity/cards.entity";
+import * as QRCode from 'qrcode';
 
 @Injectable()
 export class ClientsService {
@@ -76,6 +77,33 @@ export class ClientsService {
     }
 
     return { client };
+  }
+
+  async findQrById(id: number) {
+    const client = await this.clientRepository.findOneBy({
+      id
+    });
+    if (!client) {
+      throw new NotFoundException({
+        message: ['Cliente no encontrado.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    const url = `${process.env.FRONT_DOMAIN}/home/OPERATOR/info-client/${client.id}`;
+    const qrCode = await QRCode.toDataURL(url, {
+      errorCorrectionLevel: 'H',
+      type: 'image/png',
+      margin: 2,
+      width: 300,
+      color: {
+        dark: '#000000',
+        light: '#ffffff',
+      },
+    });
+
+    return { qrCode };
   }
 
   async findByIdentificationNumber(identificationNumber: string) {
