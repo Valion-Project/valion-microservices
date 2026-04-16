@@ -42,4 +42,9 @@ export class ClientsDevController {
   getByIdentificationNumber(@Param('identificationNumber') identificationNumber: string) {
     return this.clientsService.findByIdentificationNumber(identificationNumber);
   }
+
+  @Get('identificationNumber/:identificationNumber/company/:companyId')
+  getByIdentificationNumberAndCompanyId(@Param('identificationNumber') identificationNumber: string, @Param('companyId', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) companyId: number) {
+    return this.clientsService.findByIdentificationNumberAndCompanyId(identificationNumber, companyId);
+  }
 }

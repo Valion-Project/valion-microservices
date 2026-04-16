@@ -5,13 +5,16 @@ import {Repository} from "typeorm";
 import {CreateClientDto} from "./dto/create-client.dto";
 import {ClientProxy} from "@nestjs/microservices";
 import {catchError, firstValueFrom} from "rxjs";
+import {Card} from "../cards/entity/cards.entity";
 
 @Injectable()
 export class ClientsService {
 
   constructor(
     @InjectRepository(Client) private readonly clientRepository: Repository<Client>,
+    @InjectRepository(Card) private readonly cardRepository: Repository<Card>,
     @Inject('USER_SERVICE') private userClient: ClientProxy,
+    @Inject('ADMIN_SERVICE') private adminClient: ClientProxy,
   ) {}
 
   async create(createClientDto: CreateClientDto) {
@@ -82,6 +85,47 @@ export class ClientsService {
     if (!client) {
       throw new NotFoundException({
         message: ['Cliente no encontrado.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    return { client };
+  }
+
+  async findByIdentificationNumberAndCompanyId(identificationNumber: string, companyId: number) {
+    const client = await this.clientRepository.findOneBy({
+      identificationNumber
+    });
+    if (!client) {
+      throw new NotFoundException({
+        message: ['Cliente no encontrado.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    await firstValueFrom(
+      this.adminClient.send('find_company_by_id', { id: companyId }).pipe(
+        catchError(err => {
+          if (err.statusCode === 404) {
+            throw new BadRequestException({
+              message: ['Empresa no encontrada.'],
+              error: 'Bad Request',
+              statusCode: 400
+            });
+          }
+          throw new InternalServerErrorException();
+        })
+      )
+    );
+
+    const cards = await this.cardRepository.find({
+      where: { companyId, client: { id: client.id } }
+    });
+    if (cards.length === 0) {
+      throw new NotFoundException({
+        message: ['Cliente no cuenta con tarjetas en la empresa.'],
         error: 'Not Found',
         statusCode: 404
       });
