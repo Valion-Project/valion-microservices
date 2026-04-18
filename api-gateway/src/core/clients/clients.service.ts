@@ -90,4 +90,25 @@ export class ClientsService {
       })
     )
   }
+
+  findByIdAndCompanyId(id: number, companyId: number) {
+    return this.pointClient.send('find_client_by_id_and_company_id', { id, companyId }).pipe(
+      catchError(err => {
+        if (err.statusCode === 404) {
+          throw new NotFoundException({
+            message: err.message,
+            error: err.error,
+            statusCode: err.statusCode
+          });
+        } else if (err.statusCode === 400) {
+          throw new BadRequestException({
+            message: err.message,
+            error: err.error,
+            statusCode: err.statusCode
+          });
+        }
+        throw new InternalServerErrorException();
+      })
+    )
+  }
 }

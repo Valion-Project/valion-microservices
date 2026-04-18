@@ -28,4 +28,9 @@ export class CardsController {
   getByClientId(@Param('id', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) id: number) {
     return this.cardService.findByClientId(id);
   }
+
+  @Get('client/:clientId/company/:companyId')
+  getByClientIdAndCompanyId(@Param('clientId', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) clientId: number, @Param('companyId', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) companyId: number) {
+    return this.cardService.findByClientIdAndCompanyId(clientId, companyId);
+  }
 }

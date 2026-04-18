@@ -54,4 +54,19 @@ export class CardsService {
       })
     )
   }
+
+  findByClientIdAndCompanyId(clientId: number, companyId: number) {
+    return this.pointClient.send('find_cards_by_client_id_and_company_id', { clientId, companyId }).pipe(
+      catchError(err => {
+        if (err.statusCode === 404) {
+          throw new NotFoundException({
+            message: err.message,
+            error: err.error,
+            statusCode: err.statusCode
+          });
+        }
+        throw new InternalServerErrorException();
+      })
+    )
+  }
 }
