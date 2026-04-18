@@ -161,4 +161,65 @@ export class ClientsService {
 
     return { client };
   }
+
+  async findByIdAndCompanyId(id: number, companyId: number) {
+    const client = await this.clientRepository.findOneBy({
+      id
+    });
+    if (!client) {
+      throw new NotFoundException({
+        message: ['Cliente no encontrado.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    await firstValueFrom(
+      this.adminClient.send('find_company_by_id', { id: companyId }).pipe(
+        catchError(err => {
+          if (err.statusCode === 404) {
+            throw new BadRequestException({
+              message: ['Empresa no encontrada.'],
+              error: 'Bad Request',
+              statusCode: 400
+            });
+          }
+          throw new InternalServerErrorException();
+        })
+      )
+    );
+
+    const cards = await this.cardRepository.find({
+      where: { companyId, client: { id: client.id } }
+    });
+    if (cards.length === 0) {
+      throw new NotFoundException({
+        message: ['Cliente no cuenta con tarjetas en la empresa.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    const userResponse = await firstValueFrom(
+      this.userClient.send('find_user_by_id', { id: client.userId }).pipe(
+        catchError(err => {
+          if (err.statusCode === 404) {
+            throw new BadRequestException({
+              message: ['Usuario no encontrado.'],
+              error: 'Bad Request',
+              statusCode: 400
+            });
+          }
+          throw new InternalServerErrorException();
+        })
+      )
+    );
+
+    return {
+      client: {
+        ...client,
+        user: userResponse.user
+      }
+    };
+  }
 }

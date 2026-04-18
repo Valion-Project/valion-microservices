@@ -324,4 +324,60 @@ export class CardsService {
  
      return { cards };
    }
+
+  async findByClientIdAndCompanyId(clientId: number, companyId: number) {
+    const cards = await this.cardRepository.findBy({
+      client: { id: clientId },
+      companyId
+    });
+    if (cards.length === 0) {
+      throw new NotFoundException({
+        message: ['Tarjetas no encontradas.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    const cardsWithRelations = await Promise.all(
+      cards.map(async card => {
+        const companyProgramResponse = await firstValueFrom(
+          this.adminClient.send('find_company_program_by_id', { id: card.companyProgramId }).pipe(
+            catchError(err => {
+              if (err.statusCode === 404) {
+                throw new BadRequestException({
+                  message: ['Programa de fidelidad en la empresa no encontrado.'],
+                  error: 'Bad Request',
+                  statusCode: 400
+                });
+              }
+              throw new InternalServerErrorException();
+            })
+          )
+        );
+
+        const levelResponse = await firstValueFrom(
+          this.adminClient.send('find_level_by_id', { id: card.levelId }).pipe(
+            catchError(err => {
+              if (err.statusCode === 404) {
+                throw new BadRequestException({
+                  message: ['Nivel no encontrado.'],
+                  error: 'Bad Request',
+                  statusCode: 400
+                });
+              }
+              throw new InternalServerErrorException();
+            })
+          )
+        );
+
+        return {
+          ...card,
+          level: levelResponse.level,
+          companyProgram: companyProgramResponse.companyProgram
+        };
+      })
+    );
+
+    return { cards: cardsWithRelations };
+  }
 }
