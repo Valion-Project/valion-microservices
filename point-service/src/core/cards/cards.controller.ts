@@ -27,6 +27,15 @@ export class CardsController {
     }
   }
 
+  @MessagePattern('find_card_by_id')
+  async findById(data: { id: number }) {
+    try {
+      return await this.cardsService.findById(data.id);
+    } catch (err) {
+      throw new RpcException(err.response);
+    }
+  }
+
   @MessagePattern('find_cards_by_company_id')
   async findByCompanyId(data: { companyId: number }) {
     try {
@@ -40,6 +49,15 @@ export class CardsController {
   async findByClientId(data: { clientId: number }) {
     try {
       return await this.cardsService.findByClientId(data.clientId);
+    } catch (err) {
+      throw new RpcException(err.response);
+    }
+  }
+
+  @MessagePattern('find_wallet_by_client_id')
+  async findWalletByClientId(data: { clientId: number }) {
+    try {
+      return await this.cardsService.findWalletByClientId(data.clientId);
     } catch (err) {
       throw new RpcException(err.response);
     }

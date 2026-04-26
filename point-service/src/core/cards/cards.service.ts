@@ -24,7 +24,7 @@ export class CardsService {
 
   async create(createCardDto: CreateCardDto) {
     const client = await this.clientRepository.findOneBy({
-      userId: createCardDto.userId
+      id: createCardDto.clientId
     });
     if (!client) {
       throw new BadRequestException({
@@ -61,7 +61,7 @@ export class CardsService {
     );
 
     const levelResponse = await firstValueFrom(
-      this.adminClient.send('find_level_by_id', { id: createCardDto.levelId }).pipe(
+      this.adminClient.send('find_default_level_by_company_id', { companyId: createCardDto.companyId }).pipe(
         catchError(err => {
           if (err.statusCode === 404) {
             throw new BadRequestException({
@@ -117,7 +117,7 @@ export class CardsService {
     const newCard = this.cardRepository.create({
       ...(companyProgramResponse.companyProgram.loyaltyProgram.name === 'POINTS' ? { points: 0 } : { visits: 0 }),
       companyId: createCardDto.companyId,
-      levelId: createCardDto.levelId,
+      levelId: levelResponse.level.id,
       companyProgramId: createCardDto.companyProgramId,
       client: client
     });
@@ -235,6 +235,58 @@ export class CardsService {
     return { message: 'Tarjeta y evento creados correctamente.' };
   }
 
+  async findById(id: number) {
+    const card = await this.cardRepository.findOne({
+      where: { id },
+      relations: ['client']
+    });
+    if (!card) {
+      throw new NotFoundException({
+        message: ['Tarjeta no encontrada.'],
+        error: "Not Found",
+        statusCode: 404
+      });
+    }
+
+    const companyProgramResponse = await firstValueFrom(
+      this.adminClient.send('find_company_program_by_id', { id: card.companyProgramId }).pipe(
+        catchError(err => {
+          if (err.statusCode === 404) {
+            throw new BadRequestException({
+              message: ['Programa de fidelidad en la empresa no encontrado.'],
+              error: 'Bad Request',
+              statusCode: 400
+            });
+          }
+          throw new InternalServerErrorException();
+        })
+      )
+    );
+
+    const companyResponse = await firstValueFrom(
+      this.adminClient.send('find_company_by_id', { id: card.companyId }).pipe(
+        catchError(err => {
+          if (err.statusCode === 404) {
+            throw new BadRequestException({
+              message: ['Empresa no encontrada.'],
+              error: 'Bad Request',
+              statusCode: 400
+            });
+          }
+          throw new InternalServerErrorException();
+        })
+      )
+    );
+
+    return {
+      card: {
+        ...card,
+        companyProgram: companyProgramResponse.companyProgram,
+        company: companyResponse.company
+      }
+    };
+  }
+
   async findByCompanyId(companyId: number) {
     const cards = await this.cardRepository.find({
       where: { companyId },
@@ -324,6 +376,60 @@ export class CardsService {
  
      return { cards };
    }
+
+  async findWalletByClientId(clientId: number) {
+    const cards = await this.cardRepository.findBy({
+      client: { id: clientId }
+    });
+    if (cards.length === 0) {
+      throw new NotFoundException({
+        message: ['Tarjetas no encontradas.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    const cardsWithRelations = await Promise.all(
+      cards.map(async card => {
+        const companyProgramResponse = await firstValueFrom(
+          this.adminClient.send('find_company_program_by_id', { id: card.companyProgramId }).pipe(
+            catchError(err => {
+              if (err.statusCode === 404) {
+                throw new BadRequestException({
+                  message: ['Programa de fidelidad en la empresa no encontrado.'],
+                  error: 'Bad Request',
+                  statusCode: 400
+                });
+              }
+              throw new InternalServerErrorException();
+            })
+          )
+        );
+
+        return {
+          ...card,
+          companyProgram: companyProgramResponse.companyProgram
+        };
+      })
+    );
+
+    const groupedByCompany = cardsWithRelations.reduce((acc, card) => {
+      const company = card.companyProgram.company;
+      const companyId = company.id;
+
+      if (!acc[companyId]) {
+        acc[companyId] = {
+          company: company,
+          cards: []
+        };
+      }
+
+      acc[companyId].cards.push(card);
+      return acc;
+    }, {});
+
+    return { companyWallet: Object.values(groupedByCompany) };
+  }
 
   async findByClientIdAndCompanyId(clientId: number, companyId: number) {
     const cards = await this.cardRepository.findBy({

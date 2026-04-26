@@ -27,6 +27,15 @@ export class RewardsController {
     }
   }
 
+  @MessagePattern('find_rewards_by_company_program_id')
+  async findByCompanyProgramId(data: { companyProgramId: number }) {
+    try {
+      return await this.rewardsService.findByCompanyProgramId(data.companyProgramId);
+    } catch (err) {
+      throw new RpcException(err.response);
+    }
+  }
+
   @MessagePattern('update_reward_by_id')
   async updateRewardById(data: { id: number, updateRewardDto: UpdateRewardDto }) {
     try {

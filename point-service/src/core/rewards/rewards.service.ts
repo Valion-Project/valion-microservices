@@ -1,7 +1,7 @@
 import {BadRequestException, Inject, Injectable, InternalServerErrorException, NotFoundException} from '@nestjs/common';
 import {InjectRepository} from "@nestjs/typeorm";
 import {Reward} from "./entity/rewards.entity";
-import {Repository} from "typeorm";
+import {IsNull, Not, Repository} from "typeorm";
 import {ClientProxy} from "@nestjs/microservices";
 import {CreateRewardDto} from "./dto/create-reward.dto";
 import {catchError, firstValueFrom} from "rxjs";
@@ -63,6 +63,37 @@ export class RewardsService {
   async findByCompanyId(companyId: number) {
     const rewards = await this.rewardRepository.findBy({
       companyId
+    });
+    if (rewards.length === 0) {
+      throw new NotFoundException({
+        message: ['Recompensas no encontradas.'],
+        error: "Not Found",
+        statusCode: 404
+      });
+    }
+
+    return { rewards };
+  }
+
+  async findByCompanyProgramId(companyProgramId: number) {
+    const companyProgramResponse = await firstValueFrom(
+      this.adminClient.send('find_company_program_by_id', { id: companyProgramId }).pipe(
+        catchError(err => {
+          if (err.statusCode === 404) {
+            throw new BadRequestException({
+              message: ['Programa de fidelidad en la empresa no encontrado.'],
+              error: 'Bad Request',
+              statusCode: 400
+            });
+          }
+          throw new InternalServerErrorException();
+        })
+      )
+    );
+
+    const rewards = await this.rewardRepository.findBy({
+      companyId: companyProgramResponse.companyProgram.company.id,
+      ...(companyProgramResponse.companyProgram.loyaltyProgram.name === 'POINTS' ? { pointCost: Not(IsNull()) } : { visitCost: Not(IsNull()) })
     });
     if (rewards.length === 0) {
       throw new NotFoundException({
