@@ -2,10 +2,11 @@ import {
     Column,
     CreateDateColumn,
     DeleteDateColumn,
-    Entity,
+    Entity, OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn
 } from 'typeorm';
+import {CompanyProgram} from "../../company-programs/entity/company-programs.entity";
 
 @Entity()
 export class Company {
@@ -23,4 +24,7 @@ export class Company {
 
     @DeleteDateColumn()
     deletedAt: Date;
+
+    @OneToMany(() => CompanyProgram, (companyProgram) => companyProgram.company)
+    companyPrograms: CompanyProgram[];
 }

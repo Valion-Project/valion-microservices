@@ -51,7 +51,9 @@ export class CompaniesService {
   }
 
   async findAll() {
-    const companies = await this.companyRepository.find();
+    const companies = await this.companyRepository.find({
+      relations: ['companyPrograms', 'companyPrograms.loyaltyProgram']
+    });
     if (companies.length === 0) {
       throw new NotFoundException({
         message: ['Empresas no encontradas.'],
@@ -64,8 +66,9 @@ export class CompaniesService {
   }
 
   async findById(id: number) {
-    const company = await this.companyRepository.findOneBy({
-      id
+    const company = await this.companyRepository.findOne({
+      where: { id },
+      relations: ['companyPrograms', 'companyPrograms.loyaltyProgram']
     });
     if (!company) {
       throw new NotFoundException({
