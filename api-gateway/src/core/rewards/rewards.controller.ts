@@ -29,6 +29,11 @@ export class RewardsController {
     return this.rewardsService.findByCompanyId(companyId);
   }
 
+  @Get('company-program/:companyProgramId')
+  getByCompanyProgramId(@Param('companyProgramId', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) companyProgramId: number) {
+    return this.rewardsService.findByCompanyProgramId(companyProgramId);
+  }
+
   @Put(':id')
   @UsePipes(new ValidationPipe({ whitelist: true }))
   updateById(@Param('id', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) id: number, @Body() updateRewardDto: UpdateRewardDto) {

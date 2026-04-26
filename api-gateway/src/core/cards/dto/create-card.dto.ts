@@ -3,23 +3,17 @@ import { ApiProperty } from '@nestjs/swagger';
 import {Type} from "class-transformer";
 
 export class CreateCardDto {
-  @IsNotEmpty({ message: 'El ID del usuario es obligatorio.' })
-  @IsNumber({}, { message: 'El ID del usuario debe ser un número.' })
+  @IsNotEmpty({ message: 'El ID del cliente es obligatorio.' })
+  @IsNumber({}, { message: 'El ID del cliente debe ser un número.' })
   @Type(() => Number)
   @ApiProperty({ example: 1 })
-  userId: number;
+  clientId: number;
 
   @IsNotEmpty({ message: 'El ID de la empresa es obligatorio.' })
   @IsNumber({}, { message: 'El ID de la empresa debe ser un número.' })
   @Type(() => Number)
   @ApiProperty({ example: 1 })
   companyId: number;
-
-  @IsNotEmpty({ message: 'El ID del nivel es obligatorio.' })
-  @IsNumber({}, { message: 'El ID del nivel debe ser un número.' })
-  @Type(() => Number)
-  @ApiProperty({ example: 1 })
-  levelId: number;
 
   @IsNotEmpty({ message: 'El ID del programa de fidelidad en la empresa es obligatorio.' })
   @IsNumber({}, { message: 'El ID del programa de fidelidad en la empresa debe ser un número.' })

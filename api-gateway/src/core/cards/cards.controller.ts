@@ -19,6 +19,11 @@ export class CardsController {
     return this.cardService.create(createCardDto);
   }
 
+  @Get('id/:id')
+  getById(@Param('id', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) id: number) {
+    return this.cardService.findById(id);
+  }
+
   @Get('company/:id')
   getByCompanyId(@Param('id', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) id: number) {
     return this.cardService.findByCompanyId(id);
@@ -27,6 +32,11 @@ export class CardsController {
   @Get('client/:id')
   getByClientId(@Param('id', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) id: number) {
     return this.cardService.findByClientId(id);
+  }
+
+  @Get('wallet/:clientId')
+  getWalletByClientId(@Param('clientId', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) clientId: number) {
+    return this.cardService.findWalletByClientId(clientId);
   }
 
   @Get('client/:clientId/company/:companyId')
