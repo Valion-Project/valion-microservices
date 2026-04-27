@@ -2,7 +2,7 @@ import {IsEmail, IsNotEmpty, MinLength} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateCompanyDto {
-  @IsNotEmpty({ message: 'El nombre es obligatorio.' })
+  @IsNotEmpty({ message: 'El nombre de la empresa es obligatorio.' })
   @ApiProperty({ example: 'string' })
   companyName: string;
 
