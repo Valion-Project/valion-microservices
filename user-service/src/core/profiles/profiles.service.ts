@@ -124,7 +124,8 @@ export class ProfilesService {
       for (const adminPermission of adminPermissions) {
         const newProfilePermission = profilePermissionRepository.create({
           profile: savedProfile,
-          permission: adminPermission
+          permission: adminPermission,
+          isAvailable: true
         });
         await profilePermissionRepository.save(newProfilePermission);
       }
